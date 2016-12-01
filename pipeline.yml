@@ -18,3 +18,4 @@ jobs:
   - get: pipeline-resource
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
