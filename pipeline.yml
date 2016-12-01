@@ -1,0 +1,20 @@
+---
+resources:
+- name: source-code-resource
+  type: git
+  source:
+    uri: {{source-code-resource-uri}}
+- name: pipeline-resource
+  type: git
+  source:
+    uri: {{pipeline-resource-uri}}
+    branch: {{pipeline-resource-branch}}
+
+jobs:
+- name: job-build-and-verify
+  plan:
+  - get: source-code-resource
+    trigger: true
+  - get: pipeline-resource
+  - task: build-and-verify
+    file: pipeline-resource/tasks/maven-build.yml
