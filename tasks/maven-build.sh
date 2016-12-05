@@ -8,4 +8,11 @@ cd source-code || echo "missing input resource: source-code"
 
 echo "Using MAVEN_OPTS: ${MAVEN_OPTS}"
 
-mvn verify ${MAVEN_ARGS}
+set +e
+mvn verify site assembly:single
+
+if [[ ! -f target/site/*.zip ]]; then
+  exit 1
+fi
+
+cp target/site/*.zip reports

@@ -1,4 +1,10 @@
 ---
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
+
 resources:
 - name: source-code-resource
   type: git
@@ -9,6 +15,15 @@ resources:
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
+- name: reports-repository
+  type: artifactory
+  source:
+      endpoint: {{m2-settings-repo-base-uri}}
+      repository: "/libs-release/reports"
+      regex: "{{app-name}}-(?<version>.*).zip"
+      username: {{m2-settings-repo-username}}
+      password: {{m2-settings-repo-password}}
+      skip_ssl_verification: true
 
 jobs:
 - name: job-build-and-verify
@@ -25,3 +40,5 @@ jobs:
       M2_SETTINGS_REPO_PASSWORD : {{m2-settings-repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI : {{m2-settings-repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{m2-settings-repo-snapshot-uri}}
+  - put: reports-repository
+    params: { file: ./reports/{{app-name}}-*.zip }

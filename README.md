@@ -1,5 +1,5 @@
-# Use Corporate Maven Repository
+# Deploy SureFire Reports
 
 ## Getting started
 
-Run `docker-compose up` to launch JFrog on port 8081 of the docker-machine.
+Run `docker-compose up` to launch JFrog on port 8081 and nginx with webdav on port 80.
