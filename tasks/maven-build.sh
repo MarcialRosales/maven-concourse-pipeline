@@ -15,4 +15,4 @@ if [[ ! -f target/site/*.zip ]]; then
   exit 1
 fi
 
-cp target/site/*.zip reports
+cp target/* ../target
