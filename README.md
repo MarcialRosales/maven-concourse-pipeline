@@ -13,29 +13,31 @@ https://github.com/starkandwayne/concourse-tutorial.
 
 ## Tutorial
 
-We have built a step by step tutorial where each step is tracked on a separate branch.
- The main or master branch is dedicated to the chapter 00 where we set up Concourse.
- Each chapter is dedicated to task or step of a standard java build pipeline.
-The first step will be to compile and run the unit tests (i.e. verify).
+We have built a step by step tutorial on how to build a standard Java Continuous Integration pipeline.
+We will dedicate a branch to perform each step. The main or master branch is dedicated to the chapter 00 where we set up Concourse.
 
 ### 00 - Set up Concourse
 
 We are going to launch Concourse using *Docker compose*. On this `master` branch
  we have a `docker-compose.yml` file and a `keys` folder with all the required ssh keys.
 
-Make sure you are in the master branch (`git branch master`) and you must have [Docker](https://docs.docker.com/engine/installation/)
+Make sure you are in the master branch (`git checkout master`) and you must have [Docker](https://docs.docker.com/engine/installation/)
 and [Docker compose](https://docs.docker.com/compose/install/) installed too.
 
-To launch concourse we run `docker-compose up` which reads the file `docker-compose.yml`. If we open that file we will see that we are launching 3 containers, a **database**, the **web-server** which gives us the nice Concourse front-end and one **worker** container where concourse executes the tasks.
+To launch concourse we run `docker-compose up` which by default reads the file `docker-compose.yml`. On this file we have declared the 3 containers we need to run Concourse: the **database**, the **web-server** which gives us the nice Concourse front-end and the **worker** container where concourse executes the tasks.
 
-**Running via docker-machine** : *If you are running concourse via docker-machine (not natively) make sure you set up the environment variable CONCOURSE_EXTERNAL_URL before `docker-compose up`*.
+**Note: Running via docker-machine** : *If you are running concourse via docker-machine (not natively) make sure you set up the environment variable CONCOURSE_EXTERNAL_URL before running `docker-compose up`*.
 
 ```
 CONCOURSE_EXTERNAL_URL=`echo $DOCKER_HOST | sed s/tcp/http/ | sed s/2376/8080/` nohup docker-compose up
 ```
-We can go now the `CONCOURSE_EXTERNAL_URL` in our browser.
+We can open the `CONCOURSE_EXTERNAL_URL` in our browser. The default credentials are concourse:changeme
 
 
 ### 01 - Compile & Verify
 
+Do `git checkout 01_build_and_verify`
+
 ### 02 - Use corporate Maven Repository
+
+Do `git checkout 02_use_corporate_maven_repo`
