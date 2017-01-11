@@ -13,7 +13,7 @@ https://github.com/starkandwayne/concourse-tutorial.
 
 ## Tutorial
 
-We have built a step by step tutorial on how to build a standard Java Continuous Integration pipeline.
+We have built a step by step tutorial on how to build a standard Continuous Integration pipeline to build java applications.
 We will dedicate a branch to perform each step. The main or master branch is dedicated to the chapter 00 where we set up Concourse.
 
 ### 00 - Set up Concourse
