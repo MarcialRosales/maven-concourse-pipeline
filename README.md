@@ -16,6 +16,8 @@ https://github.com/starkandwayne/concourse-tutorial.
 We have built a step by step tutorial on how to build a standard Continuous Integration pipeline to build java applications.
 We will dedicate a branch to perform each step. The main or master branch is dedicated to the chapter 00 where we set up Concourse.
 
+The current project contains concourse artifacts, i.e. pipeline, tasks and script files. It does not build any specific project. Instead, we are going to use this project to build real application projects. In fact, we are going to build the project [app1](https://github.com/MarcialRosales/maven-concourse-pipeline-app1). This is a simple Spring Boot application.
+
 ### 00 - Set up Concourse
 
 We are going to launch Concourse using *Docker compose*. On this `master` branch
