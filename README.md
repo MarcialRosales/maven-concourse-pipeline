@@ -39,6 +39,27 @@ We can open the `CONCOURSE_EXTERNAL_URL` in our browser. The default credentials
 **Download fly**
 Once we have *Concourse* running, we need to download a command line utility called **fly** from the main page of our *Concourse*.
 
+**Login to Concourse**
+Before we operate with *Concourse* through *fly* we need to login and remember that login attempt with an alias. Every command we subsequently invoke must refer to that alias.
+
+Let's login to Concourse running under `http://192.168.99.100:8080` using username and password `concourse:changeme` and we give it the alias `plan1`:
+```
+fly -t plan1 login -c http://192.168.99.100:8080 -u concourse -p changeme
+```
+
+It is very likely that *fly* warns us with a message similar to this one:
+```
+fly version (2.2.1) is out of sync with the target (2.6.0). to sync up, run the following:
+
+    fly -t plan1 sync
+
+cowardly refusing to run due to significant version discrepancy
+```
+
+All we have to do is run the suggested command: `fly -t plan1 sync` and it will automatically upgrade our *fly* client.
+
+Now, we are all set to continue.
+
 ### 01 - Compile & Verify
 
 Do `git checkout 01_build_and_verify`
