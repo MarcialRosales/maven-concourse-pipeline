@@ -20,6 +20,7 @@ The current project contains concourse artifacts, i.e. pipeline, tasks and scrip
 
 ### 00 - Set up Concourse
 
+**Launch Concourse with Docker-compose**
 We are going to launch Concourse using *Docker compose*. On this `master` branch
  we have a `docker-compose.yml` file and a `keys` folder with all the required ssh keys.
 
@@ -35,6 +36,8 @@ CONCOURSE_EXTERNAL_URL=`echo $DOCKER_HOST | sed s/tcp/http/ | sed s/2376/8080/` 
 ```
 We can open the `CONCOURSE_EXTERNAL_URL` in our browser. The default credentials are concourse:changeme
 
+**Download fly**
+Once we have *Concourse* running, we need to download a command line utility called **fly** from the main page of our *Concourse*.
 
 ### 01 - Compile & Verify
 
