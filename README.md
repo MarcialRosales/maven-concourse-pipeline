@@ -10,7 +10,7 @@ We inherit the set up from the step `02_use_corporate_maven_repo` which gives us
 If we haven't launch our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
-However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*.
+However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*. If you don't have a *PWS* account to go [https://run.pivotal.io/](https://run.pivotal.io/) and set up a free demo account.
 
 ## Pipeline explained
 
@@ -19,11 +19,13 @@ We are going to introduce a new *Concourse* resource called [cf-resource](https:
 ### Declare deploy-to-cf as a cf-resource
 We don't need to declare `cf-resource` as a `resource-type` because it is one of the resource-types that *Concourse* recognizes out of the box. But we still need to declare a resource and configure it with our *Cloud Foundry* account details.
 
+**Note: We are building the entire pipeline from dev to prod in a single pipeline file. By all means, this is not the only way of doing it. You can certainly have one pipeline only for development and a separate one for deploying to production**
+
 ```
-- name: deploy-to-cf
-  type: cf-resource
+- name: pcf-resource
+  type: cf
   source:
-    api: {{cf-api}}}
+    api: {{cf-api}}
     username: {{cf-username}}
     password: {{cf-password}}
     organization: {{cf-org}}
@@ -42,62 +44,36 @@ cf-space: <your space>
 
 ```
 
-### Copy Maven's produced jar to an output folder
-The other change we have to do is to put the built jar onto an `output` folder. For that we are going to modify the task definition file `maven-build.yml` to add these 2 lines. When we add these 2 lines, *Concourse* will create a folder called `build` in the root filesystem of the container where our task runs.
+### Add a new job that pushes the built artifact to *Cloud Foundry* as soon as a new version is available
+
+We need to add a new job different to the one we had before that we called `job-build-and-verify`. The purpose of that job was just to build an artifact and to push it to a maven repository if the unit tests passed. Once that artifact is ready in the maven repo, we can trigger other jobs like the one we are about to add. Our job, `job-deploy-to-pcf` will take the latest artifact from the maven repo and push it to the configured *Cloud Foundry* account whose details are in the `credentials.yml`.
 
 ```
-outputs:
-  - name: build
-```
-
-And we add the following lines to the `maven-build.sh` so that it copies the jar into that folder.
-```
-
-echo "Publishing artifact from target to <output folder: ../build>"
-cp target/*.jar ../build
-```
-
-### Push produced jar to Maven local repo
-And the last change is to modify the job in the `pipeline.yml` so that we publish to artifactory the jar we copied to the `build` folder.
-You maybe be wondering why do we need `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. In the task `maven-build.sh` we declared an output folder with the name `build`. However, that `build` folder receives a different name on this `pipeline.yml` file, it is named `built-artifact`. It is the same folder but with has different names depending whether we are within the task or in the pipeline. It is not that important to fully understand why we need it at the moment.
-
-There is a nasty bit on this pipeline which is how we tell the `artifactory-repository` resource which file to push to Maven repo. In *Concourse* we cannot concatenate multiple variables like this: `file: ./built-artifact/{{artifact-id}}-*`. If this expression would have been valid, it would resolve to `file: ./built-artifact/maven-concourse-pipeline-app1-*` however *Concourse* produces instead this which is wrong: `file: ./built-artifact/"maven-concourse-pipeline-app1"-*`. For this reason, I have to declare the file we want to publish in the `credentials.yml` file which is very nasty because we have to reference the folder `built-artifact` which is defined in the pipeline. It is a very ugly solution.
-
-```
-jobs:
-- name: job-build-and-verify
+- name: job-deploy-to-pcf
   plan:
-  - get: source-code-resource
+  - get: artifact-resource
     trigger: true
   - get: pipeline-resource
-  - task: build-and-verify
-    file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
-    output_mapping: {build: built-artifact}
+  - task: generate-manifest
+    file: pipeline-resource/tasks/generate-manifest.yml
+    input_mapping: {pipeline: pipeline-resource, artifact: artifact-resource}
     params:
-      M2_SETTINGS_REPO_ID: {{repo-id}}
-      M2_SETTINGS_REPO_USERNAME: {{repo-username}}
-      M2_SETTINGS_REPO_PASSWORD: {{repo-password}}
-      M2_SETTINGS_REPO_RELEASE_URI: {{repo-release-uri}}
-      M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
-  - put: artifact-repository
+      APP_NAME: {{cf-app-name}}
+      APP_HOST: {{cf-app-host}}
+  - put: pcf-resource
     params:
-      file: {{artifact-to-publish}}
-
+      manifest: manifest/manifest.yml
 ```
+
+We have configured this job to trigger as soon as a new artifact becomes available (see the `trigger: true` attribute in the `- get: artifact-resource`). Before we can push the artifact (our jar) we need to generate a `manifest.yml` file and we have created a task for that called `generate-manifest`. It produces a folder called `manifest` which has the `manifest.yml` and the actual artifact. See the 2 parameters we are passing to the task: `APP_NAME` and `APP_HOST`. Our task uses these 2 parameters to produce the corresponding `manifest.yml`.
+
 
 ## Let's run the pipeline
 
 Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/03_deploy_artifact/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p deploy-artifact -c pipeline.yml -l credentials.yml
+maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/20_push_to_pcf/pipeline.yml --output pipeline.yml
+maven-concourse-pipeline-app1$ fly -t plan1 sp -p push-to-pcf -c pipeline.yml -l credentials.yml
 ```
 This is our pipeline:
-![Pipeline that builds and deploys to Artifactory](assets/pipeline4.png)
-
-This is a successful job summary:
-![Successful build and deploy](assets/pipeline3.png)
-
-
-This time, the pipeline produced an output resource, `artifact-repository` is the name of the resource, and the version is `0.0.1-SNAPSHOT`. This output resource can easily be the input resource of another pipeline. That is why it is so important that the outcome of a pipeline, like a jar, be an output resource. If we would have used Maven's artifact distribution mechanism, the jar would have also been deployed to our local maven repo but *Concourse* would not know about it.
+![Pipeline that builds, deploys to Artifactory and push it to PCF](assets/pipeline6.png)

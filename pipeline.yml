@@ -52,6 +52,7 @@ jobs:
   - put: artifact-resource
     params:
       file: {{artifact-to-publish}}
+
 - name: job-deploy-to-pcf
   plan:
   - get: artifact-resource
