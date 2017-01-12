@@ -23,8 +23,8 @@ resources:
     username: {{repo-username}}
     password: {{repo-password}}
     skip_ssl_verification: true
-- name: deploy-to-cf-resource
-  type: cf-resource
+- name: cf-resource
+  type: cf
   source:
     api: {{cf-api}}
     username: {{cf-username}}
@@ -60,9 +60,10 @@ jobs:
   - task: generate-manifest
     file: pipeline-resource/tasks/generate-manifest.yml
     input_mapping: {artifact-to-deploy: artifact-resource, pipeline: pipeline-resource}
+    output_mapping: {manifest-and-artifact: to-deploy}
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
-  - put: deploy-to-cf-resource
+  - put: cf-resource
     params:
-      manifest: manifest-to-deploy/manifest.yml
+      manifest: to-deploy/manifest.yml

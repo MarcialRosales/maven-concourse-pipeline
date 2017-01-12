@@ -27,5 +27,6 @@ applications:
 EOF
 
 cat manifest.yml
+cp ../artifact-to-deploy/* .
 
 set -x

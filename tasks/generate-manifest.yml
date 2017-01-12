@@ -8,7 +8,7 @@ inputs:
   - name: artifact-to-deploy
   - name: pipeline
 outputs:
-  - name: manifest-to-deploy
+  - name: manifest-and-artifact
 
 run:
   path: pipeline/tasks/generate-manifest.sh
