@@ -1,4 +1,9 @@
----
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
+
 resources:
 - name: source-code-resource
   type: git
@@ -9,6 +14,15 @@ resources:
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
+- name: artifact-repository
+  type: artifactory
+  source:
+    endpoint: http://192.168.99.100:8081/artifactory
+    repository: libs-release
+    regex: {{artifact-id}}-(?<version>.*).{{artifact-type}}
+    username: {{repo-username}}
+    password: {{repo-password}}
+    skip_ssl_verification: true
 
 jobs:
 - name: job-build-and-verify
@@ -20,8 +34,11 @@ jobs:
     file: pipeline-resource/tasks/maven-build.yml
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
     params:
-      M2_SETTINGS_REPO_ID : {{m2-settings-repo-id}}
-      M2_SETTINGS_REPO_USERNAME : {{m2-settings-repo-username}}
-      M2_SETTINGS_REPO_PASSWORD : {{m2-settings-repo-password}}
-      M2_SETTINGS_REPO_RELEASE_URI : {{m2-settings-repo-release-uri}}
-      M2_SETTINGS_REPO_SNAPSHOT_URI : {{m2-settings-repo-snapshot-uri}}
+      M2_SETTINGS_REPO_ID : {{repo-id}}
+      M2_SETTINGS_REPO_USERNAME : {{repo-username}}
+      M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
+      M2_SETTINGS_REPO_RELEASE_URI : {{repo-uri}}/{{repo-release}}
+      M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-uri}}/{{repo-snapshot}}
+  - put: artifact-repository
+      params:
+        file: ./source-code-resource/target/{{artifact-id}}-*.{{artifact-type}}
