@@ -64,8 +64,8 @@ maven-concourse-pipeline-app1$ fly -t plan1 sp -p build-and-verify -c pipeline.y
 - first we downloaded the `pipeline.yml` file we want to use. We don't need the checkout the entire pipeline project, just the `pipeline.yml` file.
 - `fly -t plan1` is saying we want to target the *Concourse* instance we logged in earlier
 - `sp` means `set-pipeline`, it is the actual command
-- `p build-and-verify` is the name we want to give it to our pipeline.
-- `-c pipeline.yml` is the actual pipeline definition. We don't want to commit this file in our project so it is the `.gitignore` file. Rmemeber, this file is in the pipeline repository. `credentials.yml` file.
+- `-p build-and-verify` is the name we want to give it to our pipeline.
+- `-c pipeline.yml` is the actual pipeline definition. We don't want to commit this file in our project so we add it to the `.gitignore` file. Remember, this file is in the pipeline repository. `credentials.yml` file.
 - `-l credentails.yml` this is the file that customizes the pipeline for our application. We want to commit this file in our project unless it has sensitive data like usernames or passwords, which is not the case, at least fow now.
 
 When we run that command  `fly -t plan1 sp ...`, *fly* will print out the final pipeline that it will be pushed to *Concourse*. See how it has resolved the variables with the actual values in our `credentials.yml` file.
