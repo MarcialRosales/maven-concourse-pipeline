@@ -26,7 +26,7 @@ resources:
 - name: deploy-to-cf-resource
   type: cf-resource
   source:
-    api: {{cf-api}}}
+    api: {{cf-api}}
     username: {{cf-username}}
     password: {{cf-password}}
     organization: {{cf-org}}
@@ -52,17 +52,17 @@ jobs:
   - put: artifact-repository
     params:
       file: {{artifact-to-publish}}
-- name: deploy-to-pcf
+- name: job-deploy-to-pcf
   plan:
   - get: artifact-repository
     trigger: true
   - get: pipeline-resource
   - task: generate-manifest
-      file: pipeline-resource/tasks/generate-manifest.yml
-      input_mapping: {artifact-to-deploy: artifact-repository}
-      params:
-        APP_NAME: {{cf-app-name}}
-        APP_HOST: {{cf-app-host}}
+    file: pipeline-resource/tasks/generate-manifest.yml
+    input_mapping: {artifact-to-deploy: artifact-repository}
+    params:
+      APP_NAME: {{cf-app-name}}
+      APP_HOST: {{cf-app-host}}
   - put: deploy-to-cf-resource
     params:
       manifest: manifest-to-deploy/manifest.yml
