@@ -1,15 +1,21 @@
 # Build and Verify
 
 ## Purpose
-We are going to use the `pipeline.yml` of this branch in order to build our [app1](https://github.com/MarcialRosales/maven-concourse-pipeline-app1). This pipeline is very simply right now and the goal
-is just to compile the source code using maven and verify it using Junit. Nothing more.
+This is going to be our first pipeline which will compile an application and run Junit tests using Maven. Nothing more.  
+The pipeline project is a template or a generic pipeline that we want to use to build any java application. It is important
+that we distinguish between our application repository and the actual pipeline's repository. The pipeline repository, where
+we are right now, consists of a set of artifacts (`pipeline.yml`, task ymls and bash scripts) that together knows how to
+build java applications. The idea is that every java application does not need to do its job pipeline but instead leverage
+an existing one.
+
+The application repository that we are going to build as means to demonstrate this pipeline is https://github.com/MarcialRosales/maven-concourse-pipeline-app1.
 
 ## Pipeline explained
 If we open the `pipeline.yml` we will see the following items:
 - a **git resource** `source-code-resource` which is the source code of the application we want to build
-- another **git resource** `pipeline-resource` which is contains the actual pipeline and all its jobs and tasks
-- a **job** `job-build-and-verify` which will check out the source code, also the pipeline and it will invoke a task
-called `build-and-verify`. As we know, this task is implemented in a file which is part of the pipeline project.
+- another **git resource** `pipeline-resource` which is the actual pipeline and all its jobs and tasks files
+- a **job** `job-build-and-verify` which will check out the source code, the pipelines' files and it will invoke a task
+called `build-and-verify`.
 
 ```
 ---
@@ -35,8 +41,11 @@ jobs:
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
 ```
 
-We want to use this same pipeline to build any application, therefore we have externalized the URI of our application
- and also the URI of the pipeline project. We are going to create a so called `credentials.yml` file with those URIs under https://github.com/MarcialRosales/maven-concourse-pipeline-app1/credentials.yml :
+We want to use this same pipeline to build any application, therefore we have to externalize the application's repository
+ and pipeline repository, although this last one is not absolutely necessary. If you look at the pipeline above, you will see 3 variables : `{{source-code-resource-uri}}`, `{{pipeline-resource-uri}}` and `{{pipeline-resource-branch}}`. The latter variable
+ allows us to configure which branch of the pipeline repository we want to use.
+
+Every application we are going to build must have a `credentials.yml` file where we resolve those variables. In the case of our [app1](https://github.com/MarcialRosales/maven-concourse-pipeline-app1) we will have a [credentials.yml](https://github.com/MarcialRosales/maven-concourse-pipeline-app1/credentials.yml) that looks like this:
 
 ```
 source-code-resource-uri: https://github.com/MarcialRosales/maven-concourse-pipeline-app1
@@ -44,15 +53,22 @@ pipeline-resource-uri: https://github.com/MarcialRosales/maven-concourse-pipelin
 pipeline-resource-branch: 01_build_and_verify
 ```
 
-We are ready to launch our first pipeline in Concourse. If you have not logged in yet with *Concourse* thru *fly* it is time to do it. If you don't know check out [here](https://github.com/MarcialRosales/maven-concourse-pipeline#00---set-up-concourse).
+## Run the pipeline!
+We are ready to launch our first pipeline in Concourse. If you have not logged in yet with *Concourse* thru *fly* it is time to do it. If you don't know how, check it out [here](https://github.com/MarcialRosales/maven-concourse-pipeline#00---set-up-concourse).
 
-## Run it!
+To set up a pipeline we are going to invoke the following command from our application's folder (i.e. `maven-concourse-pipeline-app1`):
+```
+$maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/01_build_and_verify/pipeline.yml --output pipeline.yml
+maven-concourse-pipeline-app1$ fly -t plan1 sp -p build-and-verify -c pipeline.yml -l credentials.yml
+```
+- first we downloaded the `pipeline.yml` file we want to use. We don't need the checkout the entire pipeline project, just the `pipeline.yml` file.
+- `fly -t plan1` is saying we want to target the *Concourse* instance we logged in earlier
+- `sp` means `set-pipeline`, it is the actual command
+- `p build-and-verify` is the name we want to give it to our pipeline.
+- `-c pipeline.yml` is the actual pipeline definition. We don't want to commit this file in our project so it is the `.gitignore` file. Rmemeber, this file is in the pipeline repository. `credentials.yml` file.
+- `-l credentails.yml` this is the file that customizes the pipeline for our application. We want to commit this file in our project unless it has sensitive data like usernames or passwords, which is not the case, at least fow now.
 
-We are going to set our pipeline (let's give it the name `build-and-verify`) against our concourse `plan1`. The `pipeline.yml` is in the sibling project `maven-concourse-pipeline`. And we inject our `credentials` file.
-```
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p build-and-verify -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml
-```
-Concourse prints out the final pipeline with the resolved credentials. See that the URIs are now pointing to the URIs we defined in our `credentials.yml` file.
+When we run that command  `fly -t plan1 sp ...`, *fly* will print out the final pipeline that it will be pushed to *Concourse*. See how it has resolved the variables with the actual values in our `credentials.yml` file.
 
 ```
 resources:
@@ -83,11 +99,12 @@ jobs:
         source-code: source-code-resource
 ```
 
-We can check out in *Concourse* console our pipeline, which is is still paused. When we first set a pipeline, *Concourse* creates it in a *paused* state.
+If we go to *Concourse* UI we will see our pipeline like this:
 
 ![Pipeline](pipeline1.png)
 
-To unpause, we can click in **play** button in the UI or by invoking this command `fly -t plan1 unpause-pipeline -p build-and-verify`.
+The pipelines can be in 2 states: They can be paused, i.e they will not ever run no matter what or they can be active, i.e. they can trigger or be manually executed. By default, when we set a pipeline, it will be paused. Run the following command to activate it:
+`fly -t plan1 unpause-pipeline -p build-and-verify`.
 
 As soon as we unpause it, *Concourse* will start the pipeline. We can track our pipeline via *fly* too:
 ```
@@ -99,7 +116,7 @@ And we can check out what is going on with the build by invoking this other comm
 ```
 $ fly -t plan1 watch -j build-and-verify/job-build-and-verify
 ```
-This is very useful because sometimes the build takes a long time to start because *Concourse* is pulling Docker images.
+This is very useful because sometimes the build may take a long time to start for various reason. One reason is when *Concourse* has to pull lots of Docker images. 
 
 Eventually, *Concourse* downloads all the required docker images and invokes our `maven-build.yml` task. This task will take a long time to run because we will see that Maven is downloading all the dependencies from central repo over the internet.
 
