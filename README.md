@@ -96,6 +96,6 @@ This is our pipeline:
 
 This is a successful job summary:
 ![Successful build and deploy](assets/pipeline3.png)
-```
+
 
 This time, the pipeline produced an output resource, `artifact-repository` is the name of the resource, and the version is `0.0.1-SNAPSHOT`. This output resource can easily be the input resource of another pipeline. That is why it is so important that the outcome of a pipeline, like a jar, be an output resource. If we would have used Maven's artifact distribution mechanism, the jar would have also been deployed to our local maven repo but *Concourse* would not know about it.
