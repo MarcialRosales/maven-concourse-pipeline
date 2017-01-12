@@ -59,12 +59,10 @@ jobs:
   - get: pipeline-resource
   - task: generate-manifest
     file: pipeline-resource/tasks/generate-manifest.yml
-    input_mapping: {pipeline: pipeline-resource}
+    input_mapping: {pipeline: pipeline-resource, artifact: artifact-resource}
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
   - put: pcf-resource
     params:
       manifest: manifest/manifest.yml
-      path: artifact-resource/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT.jar
-      

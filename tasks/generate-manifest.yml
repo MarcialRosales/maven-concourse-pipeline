@@ -6,6 +6,7 @@ image_resource:
 
 inputs:
   - name: pipeline
+  - name: artifact
 outputs:
   - name: manifest
 
