@@ -58,7 +58,7 @@ We are ready to launch our first pipeline in Concourse. If you have not logged i
 
 To set up a pipeline we are going to invoke the following command from our application's folder (i.e. `maven-concourse-pipeline-app1`):
 ```
-$maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/01_build_and_verify/pipeline.yml --output pipeline.yml
+maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/01_build_and_verify/pipeline.yml --output pipeline.yml
 maven-concourse-pipeline-app1$ fly -t plan1 sp -p build-and-verify -c pipeline.yml -l credentials.yml
 ```
 - first we downloaded the `pipeline.yml` file we want to use. We don't need the checkout the entire pipeline project, just the `pipeline.yml` file.
