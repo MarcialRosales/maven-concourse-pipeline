@@ -59,7 +59,7 @@ jobs:
   - get: pipeline-resource
   - task: generate-manifest
     file: pipeline-resource/tasks/generate-manifest.yml
-    input_mapping: {artifact-to-deploy: artifact-resource}
+    input_mapping: {artifact-to-deploy: artifact-resource, pipeline: pipeline-resource}
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
