@@ -6,6 +6,7 @@ image_resource:
 
 inputs:
   - name: artifact-to-deploy
+  - name: pipeline
 outputs:
   - name: manifest-to-deploy
 
