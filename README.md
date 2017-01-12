@@ -1,10 +1,8 @@
-# Deploy Artifact
+# Deploy Artifact to Pivotal Cloud Foundry
 
 ## Purpose
 
-Up until now we have built our application but we have not deploy its artifact to a maven repository
-so that others can use it. The goal of this step is to publish our application' jar to the corporate Maven repo
-we set up in the previous step.
+The purpose of this step is to take an artifact from a Maven repository *JFrog* and push it *Cloud Foundry*. This step should trigger as soon as a new version is available.
 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
@@ -12,47 +10,36 @@ We inherit the set up from the step `02_use_corporate_maven_repo` which gives us
 If we haven't launch our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
+However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*.
 
 ## Pipeline explained
 
-We are going to introduce a new *Concourse* resource called [Artifactory Resource](https://github.com/pivotalservices/artifactory-resource) to publish our application's artifact (jar) to *JFrog*.
+We are going to introduce a new *Concourse* resource called [cf-resource](https://github.com/concourse/cf-resource) to publish our application's artifact (jar) to *Cloud Foundry*.
 
-### Declare artifactory-resource as resource-type
-Because this resource is not one of the out-of-the-box resources that comes with *Concourse* we need to explicitly declare it in the `pipeline.yml`. For convention, we try to group all `resource-types` at the beginning of the pipeline file followed by the `resources` and the `jobs` afterwards.
+### Declare deploy-to-cf as a cf-resource
+We don't need to declare `cf-resource` as a `resource-type` because it is one of the resource-types that *Concourse* recognizes out of the box. But we still need to declare a resource and configure it with our *Cloud Foundry* account details.
 
 ```
-resource_types:
-- name: artifactory
-  type: docker-image
+- name: deploy-to-cf
+  type: cf-resource
   source:
-    repository: pivotalservices/artifactory-resource
-```
-
-### Declare artifactory-repository as resource
-Once we have the resource-type declared, we can make use of it. This resource type is fully explained [here](https://github.com/pivotalservices/artifactory-resource). We have externalized the actual parameter values to our `credentials.yml` file in our application's repository.
-
-```
-- name: artifact-repository
-  type: artifactory
-  source:
-    endpoint: {{repo-uri}}
-    repository: {{repo-release-folder}}
-    regex: {{repo-release-regex}}
-    username: {{repo-username}}
-    password: {{repo-password}}
-    skip_ssl_verification: true
+    api: {{cf-api}}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-org}}
+    space: {{cf-space}}
+    skip_cert_check: false
 
 ```
 
 These are the actual values of those variables in the `credentials.yml`:
 ```
-repo-uri: http://192.168.99.100:8081/artifactory
-repo-release-folder: /libs-release-local/com/example/maven-concourse-pipeline-app1
-repo-release-regex: maven-concourse-pipeline-app1-(?<version>.*).jar
-repo-username: admin
-repo-password: password
+cf-api: https://api.run.pivotal.io
+cf-username: <your username>
+cf-password: <your pass>
+cf-organization: <your org>
+cf-space: <your space>
 
-artifact-to-publish: ./built-artifact/maven-concourse-pipeline-app1-*.jar
 ```
 
 ### Copy Maven's produced jar to an output folder

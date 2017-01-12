@@ -1,0 +1,13 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source: {repository: concourse, tag: buildroot:curl}
+
+inputs:
+  - name: artifact-to-deploy
+outputs:
+  - name: manifest-to-deploy
+
+run:
+  path: pipeline/tasks/generate-manifest.sh

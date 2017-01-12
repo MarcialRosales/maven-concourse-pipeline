@@ -23,6 +23,15 @@ resources:
     username: {{repo-username}}
     password: {{repo-password}}
     skip_ssl_verification: true
+- name: deploy-to-cf-resource
+  type: cf-resource
+  source:
+    api: {{cf-api}}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-org}}
+    space: {{cf-space}}
+    skip_cert_check: false
 
 jobs:
 - name: job-build-and-verify
@@ -34,7 +43,6 @@ jobs:
     file: pipeline-resource/tasks/maven-build.yml
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
     output_mapping: {build: built-artifact}
-
     params:
       M2_SETTINGS_REPO_ID: {{repo-id}}
       M2_SETTINGS_REPO_USERNAME: {{repo-username}}
@@ -44,3 +52,17 @@ jobs:
   - put: artifact-repository
     params:
       file: {{artifact-to-publish}}
+- name: deploy-to-pcf
+  plan:
+  - get: artifact-repository
+    trigger: true
+  - get: pipeline-resource
+  - task: generate-manifest
+      file: pipeline-resource/tasks/generate-manifest.yml
+      input_mapping: {artifact-to-deploy: artifact-repository}
+      params:
+        APP_NAME: {{cf-app-name}}
+        APP_HOST: {{cf-app-host}}
+  - put: deploy-to-cf-resource
+    params:
+      manifest: manifest-to-deploy/manifest.yml
