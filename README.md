@@ -51,6 +51,8 @@ cf-space: <your space>
 We need to add a new job different to the one we had before that we called `job-build-and-verify`. The purpose of that job was just to build an artifact and to push it to a maven repository if the unit tests passed. Once that artifact is ready in the maven repo, we can trigger other jobs like the one we are about to add. Our job, `job-deploy-to-pcf` will take the latest artifact from the maven repo and push it to the configured *Cloud Foundry* account whose details are in the `credentials.yml`.
 
 ```
+jobs:
+   ...
 - name: job-deploy-to-pcf
   plan:
   - get: artifact-resource
@@ -65,6 +67,7 @@ We need to add a new job different to the one we had before that we called `job-
   - put: pcf-resource
     params:
       manifest: manifest/manifest.yml
+    ...
 ```
 
 We have configured this job to trigger as soon as a new artifact becomes available (see the `trigger: true` attribute in the `- get: artifact-resource`). Before we can push the artifact (our jar) we need to generate a `manifest.yml` file and we have created a task for that called `generate-manifest`. It produces a folder called `manifest` which has the `manifest.yml` and the actual artifact. See the 2 parameters we are passing to the task: `APP_NAME` and `APP_HOST`. Our task uses these 2 parameters to produce the corresponding `manifest.yml`.
