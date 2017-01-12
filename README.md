@@ -22,6 +22,8 @@ We don't need to declare `cf` as a `resource-type` because it is one of the reso
 **Note: We are building the entire pipeline from dev to prod in a single pipeline file. This is not the only way of doing it. You can certainly have one pipeline  for development and a separate one for production**
 
 ```
+resources:
+  ....
 - name: pcf-resource
   type: cf
   source:
@@ -31,7 +33,7 @@ We don't need to declare `cf` as a `resource-type` because it is one of the reso
     organization: {{cf-org}}
     space: {{cf-space}}
     skip_cert_check: false
-
+   ....
 ```
 
 These are the actual values of those variables in the `credentials.yml`:
