@@ -81,4 +81,4 @@ maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRos
 maven-concourse-pipeline-app1$ fly -t plan1 sp -p push-to-pcf -c pipeline.yml -l credentials.yml
 ```
 This is our pipeline:
-![Pipeline that builds, deploys to Artifactory and push it to PCF](assets/pipeline6.png)
+![Pipeline that builds, deploys to Artifactory and push it to PCF](assets/pipeline5.png)
