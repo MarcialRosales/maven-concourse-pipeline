@@ -11,7 +11,7 @@ if [ ! -d manifest ]; then
 fi
 
 cp artifact/* manifest
-APP_PATH=`ls manifest`
+APP_PATH=`ls manifest/*`
 
 cd manifest
 echo "Writing manifest.yml to [manifest/manifest.yml]"
