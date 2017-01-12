@@ -5,7 +5,7 @@ This is going to be our first pipeline which will compile an application and run
 The pipeline project is a template or a generic pipeline that we want to use to build any java application. It is important
 that we distinguish between our application repository and the actual pipeline's repository. The pipeline repository, where
 we are right now, consists of a set of artifacts (`pipeline.yml`, task ymls and bash scripts) that together knows how to
-build java applications. The idea is that every java application does not need to do its job pipeline but instead leverage
+build java applications. The idea is that every java application does not need to build its own pipeline but instead leverage
 an existing one.
 
 The application repository that we are going to build as means to demonstrate this pipeline is https://github.com/MarcialRosales/maven-concourse-pipeline-app1.
@@ -116,7 +116,7 @@ And we can check out what is going on with the build by invoking this other comm
 ```
 $ fly -t plan1 watch -j build-and-verify/job-build-and-verify
 ```
-This is very useful because sometimes the build may take a long time to start for various reason. One reason is when *Concourse* has to pull lots of Docker images. 
+This is very useful because sometimes the build may take a long time to start for various reason. One reason is when *Concourse* has to pull lots of Docker images.
 
 Eventually, *Concourse* downloads all the required docker images and invokes our `maven-build.yml` task. This task will take a long time to run because we will see that Maven is downloading all the dependencies from central repo over the internet.
 
