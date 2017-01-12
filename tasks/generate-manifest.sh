@@ -7,13 +7,15 @@ if [ ! -d artifact ]; then
   exit 1
 fi
 if [ ! -d manifest ]; then
-  mkdir manifest-to-deploy
+  echo "manifest folder does not exist"
+  exit 1
 fi
 
 cp artifact/* manifest
-APP_PATH=`ls manifest/*`
 
 cd manifest
+APP_PATH=`ls`
+
 echo "Writing manifest.yml to [manifest/manifest.yml]"
 set +x
 cat > manifest.yml <<EOF
