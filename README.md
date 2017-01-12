@@ -9,7 +9,7 @@ we set up in the previous step.
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
 
-We haven't launch our infrastucture, we can do it now:
+If we haven't launch our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
 
@@ -17,7 +17,8 @@ We haven't launch our infrastucture, we can do it now:
 
 We are going to introduce a new *Concourse* resource called [Artifactory Resource](https://github.com/pivotalservices/artifactory-resource) to publish our application's artifact (jar) to *JFrog*.
 
-Because this resource is not one of the out-of-the-box resources that comes with *Concourse* we need to explicitly declare it in the `pipeline.yml`. For convention, we try to group all `resource-types` at the beginning of the pipeline file followed by the `resources` and finally we add the `jobs`.
+### Declare artifactory-resource as resource-type
+Because this resource is not one of the out-of-the-box resources that comes with *Concourse* we need to explicitly declare it in the `pipeline.yml`. For convention, we try to group all `resource-types` at the beginning of the pipeline file followed by the `resources` and the `jobs` afterwards.
 
 ```
 resource_types:
@@ -27,6 +28,7 @@ resource_types:
     repository: pivotalservices/artifactory-resource
 ```
 
+### Declare artifactory-repository as resource
 Once we have the resource-type declared, we can make use of it. This resource type is fully explained [here](https://github.com/pivotalservices/artifactory-resource). We have externalized the actual parameter values to our `credentials.yml` file in our application's repository.
 
 ```
@@ -42,6 +44,18 @@ Once we have the resource-type declared, we can make use of it. This resource ty
 
 ```
 
+These are the actual values of those variables in the `credentials.yml`:
+```
+repo-uri: http://192.168.99.100:8081/artifactory
+repo-release-folder: /libs-release-local/com/example/maven-concourse-pipeline-app1
+repo-release-regex: maven-concourse-pipeline-app1-(?<version>.*).jar
+repo-username: admin
+repo-password: password
+
+artifact-to-publish: ./built-artifact/maven-concourse-pipeline-app1-*.jar
+```
+
+### Copy Maven's produced jar to an output folder
 The other change we have to do is to put the built jar onto an `output` folder. For that we are going to modify the task definition file `maven-build.yml` to add these 2 lines. When we add these 2 lines, *Concourse* will create a folder called `build` in the root filesystem of the container where our task runs.
 
 ```
@@ -56,6 +70,7 @@ echo "Publishing artifact from target to <output folder: ../build>"
 cp target/*.jar ../build
 ```
 
+### Push produced jar to Maven local repo
 And the last change is to modify the job in the `pipeline.yml` so that we publish to artifactory the jar we copied to the `build` folder.
 You maybe be wondering why do we need `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. In the task `maven-build.sh` we declared an output folder with the name `build`. However, that `build` folder receives a different name on this `pipeline.yml` file, it is named `built-artifact`. It is the same folder but with has different names depending whether we are within the task or in the pipeline. It is not that important to fully understand why we need it at the moment.
 
