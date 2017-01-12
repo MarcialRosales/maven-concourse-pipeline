@@ -7,19 +7,19 @@ The purpose of this step is to take an artifact from a Maven repository *JFrog* 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
 
-If we haven't launch our infrastucture yet, we can do it now:
+If we haven't launched our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
-However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*. If you don't have a *PWS* account to go [https://run.pivotal.io/](https://run.pivotal.io/) and set up a free demo account.
+However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*. If you don't have a *PWS* account go to [https://run.pivotal.io/](https://run.pivotal.io/) and set up a free demo account.
 
 ## Pipeline explained
 
 We are going to introduce a new *Concourse* resource called [cf-resource](https://github.com/concourse/cf-resource) to publish our application's artifact (jar) to *Cloud Foundry*.
 
-### Declare deploy-to-cf as a cf-resource
-We don't need to declare `cf-resource` as a `resource-type` because it is one of the resource-types that *Concourse* recognizes out of the box. But we still need to declare a resource and configure it with our *Cloud Foundry* account details.
+### Declare pcf-resource as a cf resource
+We don't need to declare `cf` as a `resource-type` because it is one of the resource-types that *Concourse* recognizes out of the box. But we still need to declare a `cf` resource and configure it with our *Cloud Foundry* account details.
 
-**Note: We are building the entire pipeline from dev to prod in a single pipeline file. By all means, this is not the only way of doing it. You can certainly have one pipeline only for development and a separate one for deploying to production**
+**Note: We are building the entire pipeline from dev to prod in a single pipeline file. This is not the only way of doing it. You can certainly have one pipeline  for development and a separate one for production**
 
 ```
 - name: pcf-resource
