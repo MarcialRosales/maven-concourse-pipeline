@@ -23,7 +23,7 @@ resources:
     username: {{repo-username}}
     password: {{repo-password}}
     skip_ssl_verification: true
-- name: cf-resource
+- name: pcf-resource
   type: cf
   source:
     api: {{cf-api}}
@@ -59,11 +59,12 @@ jobs:
   - get: pipeline-resource
   - task: generate-manifest
     file: pipeline-resource/tasks/generate-manifest.yml
-    input_mapping: {artifact-to-deploy: artifact-resource, pipeline: pipeline-resource}
-    output_mapping: {manifest-and-artifact: to-deploy}
+    input_mapping: {pipeline: pipeline-resource}
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
-  - put: cf-resource
+  - put: pcf-resource
     params:
-      manifest: to-deploy/manifest.yml
+      manifest: manifest/manifest.yml
+      path: artifact-resource/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT.jar
+      

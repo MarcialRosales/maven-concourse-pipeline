@@ -5,10 +5,9 @@ image_resource:
   source: {repository: concourse/buildroot, tag: curl}
 
 inputs:
-  - name: artifact-to-deploy
   - name: pipeline
 outputs:
-  - name: manifest-and-artifact
+  - name: manifest
 
 run:
   path: pipeline/tasks/generate-manifest.sh
