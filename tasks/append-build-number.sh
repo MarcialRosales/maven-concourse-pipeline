@@ -7,7 +7,7 @@ if [ -e ./input-version/number ]; then
   exit 1
 fi
 
-VERSION=`cat ../input-version/number`
+VERSION=`cat ./input-version/number`
 
 if [ -e ./source-code/.git/refs/heads/${BRANCH} ]; then
   echo "Missing source-code/.git/refs/heads/${BRANCH} file"
