@@ -9,11 +9,15 @@ resources:
   type: git
   source:
     uri: {{source-code-resource-uri}}
+    private_key: {{github-private-key}}
+
 - name: pipeline-resource
   type: git
   source:
     uri: {{pipeline-resource-uri}}
+    private_key: {{github-private-key}}
     branch: {{pipeline-resource-branch}}
+
 - name: artifact-repository
   type: artifactory
   source:
@@ -34,7 +38,6 @@ jobs:
     file: pipeline-resource/tasks/maven-build.yml
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
     output_mapping: {build: built-artifact}
-
     params:
       M2_SETTINGS_REPO_ID: {{repo-id}}
       M2_SETTINGS_REPO_USERNAME: {{repo-username}}
