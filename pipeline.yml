@@ -6,6 +6,7 @@ resources:
   source:
     uri: {{source-code-resource-uri}}
     private_key: {{github-private-key}}
+    branch: {{source-code-resource-branch}}
 
 - name: version-resource
   type: semver
@@ -32,9 +33,15 @@ jobs:
     trigger: true
   - get: pipeline-resource
   - get: version-resource
+  - task: append-build-number
+    file: pipeline-resource/tasks/append-build-number.yml
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, input-version: version-resource}
+    output_mapping: {output-version: new-version}
+    params:
+      BRANCH: {{source-code-resource-branch}}
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: new-version}
     output_mapping: {build: built-artifact}
     params:
       M2_SETTINGS_REPO_ID : {{repo-id}}
