@@ -13,16 +13,16 @@ resources:
     driver: git
     initial_version: 0.0.1
     uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
+    private_key: {{github-private-key}}
     branch: version
     file: version
-    private_key: {{github-private-key}}
 
 - name: pipeline-resource
   type: git
   source:
     uri: {{pipeline-resource-uri}}
-    branch: {{pipeline-resource-branch}}
     private_key: {{github-private-key}}
+    branch: {{pipeline-resource-branch}}
 
 jobs:
 - name: job-build-and-verify
@@ -34,5 +34,11 @@ jobs:
   - get: version-resource
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
     output_mapping: {build: built-artifact}
+    params:
+      M2_SETTINGS_REPO_ID : {{repo-id}}
+      M2_SETTINGS_REPO_USERNAME : {{repo-username}}
+      M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
+      M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
+      M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
