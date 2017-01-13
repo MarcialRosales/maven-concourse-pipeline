@@ -22,6 +22,6 @@ We are going to introduce a new *Concourse* resource called [semver](https://git
 
 Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/03_deploy_artifact/pipeline.yml --output pipeline.yml
+maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/04_release_versioned_artifact/pipeline.yml --output pipeline.yml
 maven-concourse-pipeline-app1$ fly -t plan1 sp -p deploy-artifact -c pipeline.yml -l credentials.yml
 ```
