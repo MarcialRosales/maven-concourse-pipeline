@@ -6,10 +6,10 @@ image_resource:
 
 inputs:
   - name: source-code
-  - name: input-version
+  - name: version
   - name: pipeline
 outputs:
-  - name: output-version
+  - name: build
 
 run:
   path: pipeline/tasks/maven-build.sh
