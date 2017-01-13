@@ -44,3 +44,5 @@ jobs:
       M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
+  - put: version-resource
+    params: { pre: rc }
