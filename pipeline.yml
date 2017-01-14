@@ -12,7 +12,7 @@ resources:
   type: semver
   source:
     driver: git
-    initial_version: 0.0.1
+    initial_version: 0.0.1.rc.0
     uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
     private_key: {{github-private-key}}
     branch: version
@@ -25,6 +25,7 @@ resources:
     private_key: {{github-private-key}}
     branch: {{pipeline-resource-branch}}
 
+
 jobs:
 - name: job-build-and-verify
   serial: true
@@ -34,9 +35,15 @@ jobs:
   - get: pipeline-resource
   - get: version-resource
     params: { pre: rc }
+  - task: append-build-number
+    file: pipeline-resource/tasks/append-build-number.sh
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, input-version: version-resource}
+    output_mapping: {output-version: buildversion-resource}
+    params:
+      BRANCH: {{source-code-resource-branch}}
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: buildversion-resource}
     output_mapping: {build: built-artifact}
     params:
       M2_SETTINGS_REPO_ID : {{repo-id}}
@@ -46,3 +53,45 @@ jobs:
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
   - put: version-resource
     params: { pre: rc }
+
+- name: increase-major
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: major }
+
+- name: increase-minor
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: minor }
+
+- name: increase-patch
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: patch }
+
+- name: make-it-final
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: final }
+
+- name: start-dev
+  serial: true
+  plan:
+  - put: version-resource
+    params: { pre: rc }
+
+groups:
+- name: build
+  jobs:
+  - job-build-and-verify
+- name: versioning
+  jobs:
+  - increase-major
+  - increase-minor
+  - increase-patch
+  - make-it-final
+  - start-dev
