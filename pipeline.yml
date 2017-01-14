@@ -36,7 +36,7 @@ jobs:
   - get: version-resource
     params: { pre: rc }
   - task: append-build-number
-    file: pipeline-resource/tasks/append-build-number.sh
+    file: pipeline-resource/tasks/append-build-number.yml
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, input-version: version-resource}
     output_mapping: {output-version: buildversion-resource}
     params:
