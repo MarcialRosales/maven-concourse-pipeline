@@ -12,7 +12,7 @@ resources:
   type: semver
   source:
     driver: git
-    initial_version: 0.0.1.rc.0
+    initial_version: 0.0.1
     uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
     private_key: {{github-private-key}}
     branch: version
