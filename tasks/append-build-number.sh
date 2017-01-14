@@ -2,6 +2,8 @@
 
 set -e
 
+ls ./input-resource
+
 if [ -e ./input-version/number ]; then
   echo "Missing input-version/number file"
   exit 1
