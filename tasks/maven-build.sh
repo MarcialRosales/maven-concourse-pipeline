@@ -15,7 +15,7 @@ echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
 echo "Setting version to build: ${VERSION}"
-mvn versions:set -DnewVersion=$(VERSION)
+mvn versions:set -DnewVersion=${VERSION}
 
 echo "Building artifact ..."
 cd source-code || echo "missing input resource: source-code"
