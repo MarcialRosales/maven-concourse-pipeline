@@ -11,19 +11,17 @@ set -e
 
 source ./pipeline/tasks/common.sh
 
-VERSION=$(build_version ./version number ./source-code $BRANCH)
-
+echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
-cd source-code || echo "missing input resource: source-code"
-
+echo "Setting version to build: ${VERSION}"
 mvn versions:set -DnewVersion=$(VERSION)
 
-echo "Building version ${VERSION} using MAVEN_OPTS: ${MAVEN_OPTS}"
-
+echo "Building artifact ..."
+cd source-code || echo "missing input resource: source-code"
 mvn verify ${MAVEN_ARGS}
 
-echo "Publishing artifact from target to ${build} "
+echo "Copying artifact to ${build} "
 cp target/*.jar ../build
 
 ls ../build
