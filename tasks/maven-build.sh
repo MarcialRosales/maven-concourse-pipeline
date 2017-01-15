@@ -11,7 +11,7 @@ set -e
 
 source ./pipeline/tasks/common.sh
 
-VERSION=$(build_version ./version number ./source_code $BRANCH)
+VERSION=$(build_version ./version number ./source-code $BRANCH)
 
 ./pipeline/tasks/generate-settings.sh
 
