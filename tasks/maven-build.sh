@@ -17,6 +17,8 @@ echo "Version to build: ${VERSION}"
 echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
+cd source-code
+
 echo "Setting maven with version to build"
 mvn versions:set -DnewVersion=${VERSION}
 
