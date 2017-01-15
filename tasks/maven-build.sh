@@ -15,7 +15,7 @@ echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
 echo "ls version folder"
-ls ./version
+cat ./version/number
 
 exit 1
 
