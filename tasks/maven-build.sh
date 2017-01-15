@@ -14,14 +14,10 @@ source ./pipeline/tasks/common.sh
 echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
-echo "ls version folder"
-cat ./version/number
-
-exit 1
-
 VERSION=build_version version number source-code ${BRANCH}
 echo "Setting version to build: ${VERSION}"
 
+exit 1
 cd source-code || echo "missing input resource: source-code"
 mvn versions:set -DnewVersion=${VERSION}
 
