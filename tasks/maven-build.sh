@@ -14,9 +14,10 @@ source ./pipeline/tasks/common.sh
 echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
-cd source-code || echo "missing input resource: source-code"
-
+VERSION=build_version version number source-code ${BRANCH} 
 echo "Setting version to build: ${VERSION}"
+
+cd source-code || echo "missing input resource: source-code"
 mvn versions:set -DnewVersion=${VERSION}
 
 echo "Building artifact ..."
