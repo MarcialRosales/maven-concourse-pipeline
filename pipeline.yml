@@ -10,6 +10,17 @@ resources:
   source:
     uri: {{source-code-resource-uri}}
     private_key: {{github-private-key}}
+    branch: {{source-code-resource-branch}}
+
+- name: version-resource
+  type: semver
+  source:
+    driver: git
+    initial_version: 0.0.1
+    uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
+    private_key: {{github-private-key}}
+    branch: version
+    file: version
 
 - name: pipeline-resource
   type: git
@@ -18,11 +29,11 @@ resources:
     private_key: {{github-private-key}}
     branch: {{pipeline-resource-branch}}
 
-- name: artifact-repository
+- name: built-artifact-repository
   type: artifactory
   source:
     endpoint: {{repo-uri}}
-    repository: {{repo-release-folder}}
+    repository: {{repo-built-folder}}
     regex: {{repo-release-regex}}
     username: {{repo-username}}
     password: {{repo-password}}
@@ -34,16 +45,19 @@ jobs:
   - get: source-code-resource
     trigger: true
   - get: pipeline-resource
+  - get: version-resource
+    params: { pre: rc }
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
     output_mapping: {build: built-artifact}
     params:
+      BRANCH: {{source-code-resource-branch}}
       M2_SETTINGS_REPO_ID: {{repo-id}}
       M2_SETTINGS_REPO_USERNAME: {{repo-username}}
       M2_SETTINGS_REPO_PASSWORD: {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI: {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
-  - put: artifact-repository
+  - put: built-artifact-repository
     params:
       file: {{artifact-to-publish}}
