@@ -11,14 +11,13 @@ set -e
 
 source ./pipeline/tasks/common.sh
 
+VERSION=$(build_version "./version" "number" "./source-code" $BRANCH)
+echo "Version to build: ${VERSION}"
+
 echo "Generating maven settings.xml"
 ./pipeline/tasks/generate-settings.sh
 
-VERSION=build_version version number source-code ${BRANCH}
-echo "Setting version to build: ${VERSION}"
-
-exit 1
-cd source-code || echo "missing input resource: source-code"
+echo "Setting maven with version to build"
 mvn versions:set -DnewVersion=${VERSION}
 
 echo "Building artifact ..."
