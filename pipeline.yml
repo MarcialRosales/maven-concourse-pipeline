@@ -33,7 +33,7 @@ resources:
   type: artifactory
   source:
     endpoint: {{repo-uri}}
-    repository: {{repo-built-folder}}
+    repository: {{repo-release-folder}}
     regex: {{repo-release-regex}}
     username: {{repo-username}}
     password: {{repo-password}}
