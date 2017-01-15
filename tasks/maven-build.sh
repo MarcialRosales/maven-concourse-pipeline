@@ -25,7 +25,5 @@ mvn versions:set -DnewVersion=${VERSION}
 echo "Building artifact ..."
 mvn verify ${MAVEN_ARGS}
 
-echo "Copying artifact to ${build} "
+echo "Copying artifact to ./build "
 cp target/*.jar ../build
-
-ls ../build
