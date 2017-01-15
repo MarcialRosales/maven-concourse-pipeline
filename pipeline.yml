@@ -35,24 +35,17 @@ jobs:
   - get: pipeline-resource
   - get: version-resource
     params: { pre: rc }
-  - task: append-build-number
-    file: pipeline-resource/tasks/append-build-number.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, input-version: version-resource}
-    output_mapping: {output-version: buildversion-resource}
-    params:
-      BRANCH: {{source-code-resource-branch}}
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: buildversion-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
     output_mapping: {build: built-artifact}
     params:
+      BRANCH: {{source-code-resource-branch}}
       M2_SETTINGS_REPO_ID : {{repo-id}}
       M2_SETTINGS_REPO_USERNAME : {{repo-username}}
       M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
-  - put: version-resource
-    params: { pre: rc }
 
 - name: increase-major
   serial: true
