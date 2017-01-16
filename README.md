@@ -16,7 +16,7 @@ There will be final and internal releases and builds. For final releases (a.k.a.
 
 An example:
 
-`app1-2.1.2-rc.3+9ad15e9db52613687e8a01bf93ea03d93e74ce5b.jar` is the **3rd** candidate release of **2.1.2** produced from the commit `9ad15e9db52613687e8a01bf93ea03d93e74ce5b`. If we deployed this artifact and it passed all the acceptance tests, we would promote it to `app1-2.1.2-rc.3.jar` and increment the version to `2.1.2-rc.4`. If another commit came thru with reference `e67552684831fabb3210138b17e8fa27dd1620f2`, that build would be `app1-2.1.2-rc.4+e67552684831fabb3210138b17e8fa27dd1620f2`.
+`app1-2.1.2-rc.3+9ad15e9db52613687e8a01bf93ea03d93e74ce5b.jar` is the **3rd** candidate release of **2.1.2** produced from the commit `9ad15e9db52613687e8a01bf93ea03d93e74ce5b`. If we deployed this artifact and it passed all the acceptance tests, we would promote it to `app1-2.1.2-rc.3.jar` and increment the version to `2.1.2-rc.4`. If another commit came thru with reference `e67552684831fabb3210138b17e8fa27dd1620f2`, that build would be `app1-2.1.2-rc.4+e67552684831fabb3210138b17e8fa27dd1620f2.jar`.
 
 ## Version management
 
@@ -25,7 +25,7 @@ So far we have talked how we will version our artifacts. Now we talk about where
 Version numbers will be stored in a versioned control file. It is better to explain it with our own example. We have our application https://github.com/MarcialRosales/maven-concourse-pipeline-app1. It has the `master` branch where we normally keep the latest and greatest version. We will create a branch which will contain a file whose content is the current version of our application.
 
 
-This is how it works: When we are about to build our application, we check out the `version` branch to know the version we are about to build. And whenever we want to bump up the version number, we bump it up and commits it back. There is *Concourse* resource called [sem-ver](https://github.com/concourse/semver-resource) which helps us with the task.
+This is how it works: When we are about to build our application, we check out the `version` branch to know the version. And whenever we want to bump up the version number, we bump it up and commits it back. There is a *Concourse* resource called [sem-ver](https://github.com/concourse/semver-resource) which helps us with the task.
 
 So, we know where versions are stored and how we are going to version each stage of our artifacts.
 
@@ -35,7 +35,7 @@ We inherit the set up from the step `02_use_corporate_maven_repo` which gives us
 If we haven't launched our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
-We need to create the `version` branch but we do it in a special way so that it has no parent parent.
+We still need to create the `version` branch but we do it in a special way:
 
 ```
 git checkout --orphan version
@@ -52,7 +52,7 @@ git push origin version
 ## Pipeline explained
 
 ### Define the version resource
-As we said earlier, we are going to use a new *Concourse* resource called [semver](https://github.com/concourse/semver-resource), so we need to declare it to point to our branch for our application.
+As we said earlier, we are going to use a new *Concourse* resource called [semver](https://github.com/concourse/semver-resource), so we need to declare it to point to our `version` branch.
 
 ```
 - name: version-resource
@@ -82,7 +82,7 @@ jobs:
     params: { pre: rc }
 
 ```
-We have also modified the `build-build.yml` task so that it takes another input folder called `version`. See that we map the original folder `version-resource` to `version`. This is because our task prefers to use the name `version` for the version folder. Our tasks also expects an additional parameter `BRANCH` which is the branch we are building. We need it to obtain the git commit reference of the branch we are building. (maybe there is a smarter way of doing it).
+We have also modified the `maven-build.yml` task so that it takes another input folder called `version`. See that we map the original folder `version-resource` to `version`. This is because our task prefers to use the name `version` for the version folder. Our tasks also expects an additional parameter `BRANCH` which is the branch we are building. We need it to obtain the git commit reference of the branch we are building. (maybe there is a smarter way of doing it).
 
 ```
   ....
