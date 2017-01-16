@@ -24,7 +24,6 @@ So far we have talked how we will version our artifacts. Now we talk about where
 
 Version numbers will be stored in a versioned control file. It is better to explain it with our own example. We have our application https://github.com/MarcialRosales/maven-concourse-pipeline-app1. It has the `master` branch where we normally keep the latest and greatest version. We will create a branch which will contain a file whose content is the current version of our application.
 
-![our new version branch](assets/github1.png).
 
 This is how it works: When we are about to build our application, we check out the `version` branch to know the version we are about to build. And whenever we want to bump up the version number, we bump it up and commits it back. There is *Concourse* resource called [sem-ver](https://github.com/concourse/semver-resource) which helps us with the task.
 
