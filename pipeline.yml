@@ -10,18 +10,21 @@ resources:
   source:
     uri: {{source-code-resource-uri}}
     branch: {{source-code-resource-branch}}
+    private_key: {{github-private-key}}
 
 - name: acceptance-test-resource
   type: git
   source:
     uri: {{acceptance-test-resource-uri}}}
     branch: {{acceptance-test-resource-branch}}
+    private_key: {{github-private-key}}
 
 - name: pipeline-resource
   type: git
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
+    private_key: {{github-private-key}}
 
 - name: artifact-resource
   type: artifactory
@@ -32,7 +35,7 @@ resources:
     username: {{repo-username}}
     password: {{repo-password}}
     skip_ssl_verification: true
-    
+
 - name: pcf-resource
   type: cf
   source:
@@ -63,7 +66,7 @@ jobs:
     params:
       file: {{artifact-to-publish}}
 
-- name: job-deploy-to-pcf
+- name: job-deploy-and-verify
   plan:
   - get: artifact-resource
     trigger: true
@@ -74,6 +77,18 @@ jobs:
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
+      APP_DOMAIN: {{cf-app-domain}}
   - put: pcf-resource
     params:
       manifest: manifest/manifest.yml
+  - task: run-acceptance-test
+    file: pipeline-resource/tasks/maven-test.yml
+    input_mapping: {acceptance-test: acceptance-test-resource, pipeline: pipeline-resource}
+    params:
+      APP_DOMAIN: {{cf-app-domain}}
+      APP_HOST: {{cf-app-host}}
+      M2_SETTINGS_REPO_ID: {{repo-id}}
+      M2_SETTINGS_REPO_USERNAME: {{repo-username}}
+      M2_SETTINGS_REPO_PASSWORD: {{repo-password}}
+      M2_SETTINGS_REPO_RELEASE_URI: {{repo-release-uri}}
+      M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
