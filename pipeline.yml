@@ -46,6 +46,16 @@ resources:
     password: {{repo-password}}
     skip_ssl_verification: true
 
+- name: candidate-artifact-resource
+  type: artifactory
+  source:
+    endpoint: {{repo-uri}}
+    repository: {{repo-candidate-folder}}
+    regex: {{repo-release-regex}}
+    username: {{repo-username}}
+    password: {{repo-password}}
+    skip_ssl_verification: true
+
 - name: pcf-resource
   type: cf
   source:
@@ -67,7 +77,7 @@ jobs:
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
     input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
-    output_mapping: {build: built-artifact}
+    output_mapping: {build: install-artifact}
     params:
       BRANCH: {{source-code-resource-branch}}
       M2_SETTINGS_REPO_ID: {{repo-id}}
@@ -77,7 +87,7 @@ jobs:
       M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
   - put: build-artifact-resource
     params:
-      file: {{artifact-to-publish}}
+      file: install-artifact/*
 
 - name: job-deploy
   plan:
@@ -117,3 +127,10 @@ jobs:
       M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
   - put: version-resource
     params: { pre: rc }
+  - task: promote-build
+    file: pipeline-resource/tasks/promote-build.yml
+    input_mapping: {version: version-resource, build: build-artifact-resource}
+    output_mapping: {release-candidate: install-artifact}
+  - put: candidate-artifact-resource
+    params:
+      file: install-artifact/*
