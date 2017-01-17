@@ -129,7 +129,7 @@ jobs:
     params: { pre: rc }
   - task: promote-build
     file: pipeline-resource/tasks/promote-build.yml
-    input_mapping: {version: version-resource, build: build-artifact-resource}
+    input_mapping: {version: version-resource, build: build-artifact-resource, pipeline: pipeline-resource}
     output_mapping: {release-candidate: install-artifact}
   - put: candidate-artifact-resource
     params:

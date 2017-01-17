@@ -7,6 +7,7 @@ image_resource:
 inputs:
   - name: version
   - name: build
+  - name: pipeline
 outputs:
   - name: release-candidate
 
