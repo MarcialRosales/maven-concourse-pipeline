@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this step is to take the latest *built artifact* from a Maven repository *JFrog* and deploy it to *Cloud Foundry*. This step should trigger as soon as a new version is available in *JFrog*.
+The purpose of this step is to take the latest *built artifact* from a Maven repository *JFrog* and deploy it to *Cloud Foundry*, verify that it passes a set of acceptance tests, and promote it as a release candidate to Maven.
 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
@@ -80,7 +80,3 @@ Once again, we are going to set the pipeline from our application's folder (i.e.
 maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/20_push_to_pcf/pipeline.yml --output pipeline.yml
 maven-concourse-pipeline-app1$ fly -t plan1 sp -p push-to-pcf -c pipeline.yml -l credentials.yml
 ```
-This is our pipeline:
-![Pipeline that builds, deploys to Artifactory and push it to PCF](assets/pipeline5.png)
-
-See the output resource `built-artifact-repository` and the version `1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731`. This artifact exists right now in *JFrog* at http://192.168.99.100:8081/artifactory/simple/libs-release-local/com/example/maven-concourse-pipeline-app1/maven-concourse-pipeline-app1-1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731.jar

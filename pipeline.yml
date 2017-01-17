@@ -9,11 +9,20 @@ resources:
   type: git
   source:
     uri: {{source-code-resource-uri}}
+    branch: {{source-code-resource-branch}}
+
+- name: acceptance-test-resource
+  type: git
+  source:
+    uri: {{acceptance-test-resource-uri}}}
+    branch: {{acceptance-test-resource-branch}}
+
 - name: pipeline-resource
   type: git
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
+
 - name: artifact-resource
   type: artifactory
   source:
@@ -23,6 +32,7 @@ resources:
     username: {{repo-username}}
     password: {{repo-password}}
     skip_ssl_verification: true
+    
 - name: pcf-resource
   type: cf
   source:
