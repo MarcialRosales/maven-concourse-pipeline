@@ -1,10 +1,10 @@
-# Deploy Artifact
+# Install Built Artifact to Maven Repo
 
 ## Purpose
 
-Up until now we have built our application but we have not deploy its artifact to a maven repository
-so that others can use it. The goal of this step is to publish our application' jar to the corporate Maven repo
-we set up in the previous step.
+The goal of this step is to install our newly built application' jar to the corporate Maven repo. In the previous step (`03_release_versioned_artifact`) we produce uniquely versioned artifacts.
+
+We are going to use the same Maven repository we used to look up all the dependencies.
 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
@@ -55,26 +55,14 @@ repo-password: password
 artifact-to-publish: ./built-artifact/maven-concourse-pipeline-app1-*.jar
 ```
 
-### Copy Maven's produced jar to an output folder
-The other change we have to do is to put the built jar onto an `output` folder. For that we are going to modify the task definition file `maven-build.yml` to add these 2 lines. When we add these 2 lines, *Concourse* will create a folder called `build` in the root filesystem of the container where our task runs.
-
-```
-outputs:
-  - name: build
-```
-
-And we add the following lines to the `maven-build.sh` so that it copies the jar into that folder.
-```
-
-echo "Publishing artifact from target to <output folder: ../build>"
-cp target/*.jar ../build
-```
+### Reminder: Copy Maven's produced jar to an output folder
+In the previous step (`03_release_versioned_artifact`), the task `maven-build.yml` copies the built jar onto an output folder. If we don't copy the jar to an output folder, we lose it as soon as *Concourse* destroy the container where it ran the task.
 
 ### Push produced jar to Maven local repo
-And the last change is to modify the job in the `pipeline.yml` so that we publish to artifactory the jar we copied to the `build` folder.
-You maybe be wondering why do we need `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. In the task `maven-build.sh` we declared an output folder with the name `build`. However, that `build` folder receives a different name on this `pipeline.yml` file, it is named `built-artifact`. It is the same folder but with has different names depending whether we are within the task or in the pipeline. It is not that important to fully understand why we need it at the moment.
+And the last change is to modify the job in the `pipeline.yml` so that we install the jar we just copied to the `build-artifact` folder.
+You maybe be wondering why do we need `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. When we create a task we declare what names are more meaningful. For instance, in `maven-build.sh` we used `source-code`, `version`, and `pipeline`. But at the pipeline level, the folder names receive the name of the resource from they come from, e.g. `source-code-resource`, or `pipeline-resource`.
 
-There is a nasty bit on this pipeline which is how we tell the `artifactory-repository` resource which file to push to Maven repo. In *Concourse* we cannot concatenate multiple variables like this: `file: ./built-artifact/{{artifact-id}}-*`. If this expression would have been valid, it would resolve to `file: ./built-artifact/maven-concourse-pipeline-app1-*` however *Concourse* produces instead this which is wrong: `file: ./built-artifact/"maven-concourse-pipeline-app1"-*`. For this reason, I have to declare the file we want to publish in the `credentials.yml` file which is very nasty because we have to reference the folder `built-artifact` which is defined in the pipeline. It is a very ugly solution.
+There is a nasty bit on this pipeline which is how we tell the `artifactory-repository` resource which file to push to Maven repo. In *Concourse* we cannot concatenate multiple variables like this: `file: ./built-artifact/{{artifact-id}}-*`. If this expression would have been valid, it would have resolved to `file: ./built-artifact/maven-concourse-pipeline-app1-*` unfortunately *Concourse* produces `file: ./built-artifact/"maven-concourse-pipeline-app1"-*` (see the double quotes around our application?). For this reason, I have to declare the full path in the `credentials.yml` file which is very nasty because we have to reference the folder `built-artifact` which is defined in the pipeline. It is a very ugly solution.
 
 ```
 jobs:
@@ -107,10 +95,11 @@ maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRos
 maven-concourse-pipeline-app1$ fly -t plan1 sp -p deploy-artifact -c pipeline.yml -l credentials.yml
 ```
 This is our pipeline:
-![Pipeline that builds and deploys to Artifactory](assets/pipeline4.png)
+![Pipeline that builds and deploys to Artifactory](assets/pipeline3.png)
 
 This is a successful job summary:
-![Successful build and deploy](assets/pipeline3.png)
+![Successful build and deploy](assets/pipeline4.png)
 
-
-This time, the pipeline produced an output resource, `artifact-repository` is the name of the resource, and the version is `0.0.1-SNAPSHOT`. This output resource can easily be the input resource of another pipeline. That is why it is so important that the outcome of a pipeline, like a jar, be an output resource. If we would have used Maven's artifact distribution mechanism, the jar would have also been deployed to our local maven repo but *Concourse* would not know about it.
+See that we have produced an output which matches with our expected versioning scheme: `built-artifact-repository
+version	1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731`.
+And the artifact is available in *Frog* under this url: http://192.168.99.100:8081/artifactory/simple/libs-release-local/com/example/maven-concourse-pipeline-app1/maven-concourse-pipeline-app1-1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731.jar
