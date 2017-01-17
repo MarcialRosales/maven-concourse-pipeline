@@ -1,8 +1,8 @@
-# Deploy Artifact to Pivotal Cloud Foundry
+# Deploy Built Artifact to Pivotal Cloud Foundry and Verify
 
 ## Purpose
 
-The purpose of this step is to take an artifact from a Maven repository *JFrog* and push it *Cloud Foundry*. This step should trigger as soon as a new version is available.
+The purpose of this step is to take the latest *built artifact* from a Maven repository *JFrog* and deploy it to *Cloud Foundry*. This step should trigger as soon as a new version is available in *JFrog*.
 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
@@ -10,16 +10,24 @@ We inherit the set up from the step `02_use_corporate_maven_repo` which gives us
 If we haven't launched our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
 
-However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*. If you don't have a *PWS* account go to [https://run.pivotal.io/](https://run.pivotal.io/) and set up a free demo account.
+However, we need an account in *Cloud Foundry* where to push our application. For this demonstration project, we are going to use *Pivotal Web Service*. If you don't have a *PWS* account go to [https://run.pivotal.io/](https://run.pivotal.io/) and set up a free demo account. Once you have an account we will add the following credentials to our application's `credentials.yml` file.
+```
+# Deployment to Cloud Foundry
+cf-api: https://api.run.pivotal.io
+cf-username: ###  
+cf-password: ###
+cf-org: pivotal-emea-cso
+cf-space: mrosales
+```
 
 ## Pipeline explained
 
-We are going to introduce a new *Concourse* resource called [cf-resource](https://github.com/concourse/cf-resource) to publish our application's artifact (jar) to *Cloud Foundry*.
+We are going to introduce a new *Concourse* resource called [cf-resource](https://github.com/concourse/cf-resource) to deploy our application's artifact (jar) to *Cloud Foundry*.
 
 ### Declare pcf-resource as a cf resource
 We don't need to declare `cf` as a `resource-type` because it is one of the resource-types that *Concourse* recognizes out of the box. But we still need to declare a `cf` resource and configure it with our *Cloud Foundry* account details.
 
-**Note: We are building the entire pipeline from dev to prod in a single pipeline file. This is not the only way of doing it. You can certainly have one pipeline  for development and a separate one for production**
+**Note: We are building the entire pipeline from dev to prod in a single pipeline file. This is not the only way of doing it. You can certainly have one pipeline for development and a separate one for production**
 
 ```
 resources:
@@ -36,17 +44,9 @@ resources:
    ....
 ```
 
-These are the actual values of those variables in the `credentials.yml`:
-```
-cf-api: https://api.run.pivotal.io
-cf-username: <your username>
-cf-password: <your pass>
-cf-organization: <your org>
-cf-space: <your space>
+These are the actual values comes from the variables we defined earlier in the `credentials.yml`.
 
-```
-
-### Add a new job that pushes the built artifact to *Cloud Foundry* as soon as a new version is available
+### Add a new job that deploys the built artifact to *Cloud Foundry* as soon as a new version is available
 
 We need to add a new job different to the one we had before that we called `job-build-and-verify`. The purpose of that job was just to build an artifact and to push it to a maven repository if the unit tests passed. Once that artifact is ready in the maven repo, we can trigger other jobs like the one we are about to add. Our job, `job-deploy-to-pcf` will take the latest artifact from the maven repo and push it to the configured *Cloud Foundry* account whose details are in the `credentials.yml`.
 
@@ -82,3 +82,5 @@ maven-concourse-pipeline-app1$ fly -t plan1 sp -p push-to-pcf -c pipeline.yml -l
 ```
 This is our pipeline:
 ![Pipeline that builds, deploys to Artifactory and push it to PCF](assets/pipeline5.png)
+
+See the output resource `built-artifact-repository` and the version `1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731`. This artifact exists right now in *JFrog* at http://192.168.99.100:8081/artifactory/simple/libs-release-local/com/example/maven-concourse-pipeline-app1/maven-concourse-pipeline-app1-1.0.0-rc.1+5325c1c7de77bc36edc64c66e64f17d058262731.jar
