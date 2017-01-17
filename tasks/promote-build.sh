@@ -2,6 +2,8 @@
 
 set -e
 
+source ./pipeline/tasks/common.sh
+
 RELEASE_CANDIDATE_VERSION=$(current_sem_ver "./version" "number")
 
 cd build || echo "missing input resource: build"
