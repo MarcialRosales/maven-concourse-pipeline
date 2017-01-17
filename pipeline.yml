@@ -9,15 +9,15 @@ resources:
   type: git
   source:
     uri: {{source-code-resource-uri}}
-    branch: {{source-code-resource-branch}}
     private_key: {{github-private-key}}
+    branch: {{source-code-resource-branch}}
 
 - name: acceptance-test-resource
   type: git
   source:
-    uri: {{acceptance-test-resource-uri}}}
-    branch: {{acceptance-test-resource-branch}}
+    uri: {{acceptance-test-resource-uri}}
     private_key: {{github-private-key}}
+    branch: {{acceptance-test-resource-branch}}
 
 - name: pipeline-resource
   type: git
@@ -26,11 +26,21 @@ resources:
     branch: {{pipeline-resource-branch}}
     private_key: {{github-private-key}}
 
-- name: artifact-resource
+- name: version-resource
+  type: semver
+  source:
+    driver: git
+    initial_version: 0.0.1
+    uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
+    private_key: {{github-private-key}}
+    branch: version
+    file: version
+
+- name: build-artifact-resource
   type: artifactory
   source:
     endpoint: {{repo-uri}}
-    repository: {{repo-release-folder}}
+    repository: {{repo-build-folder}}
     regex: {{repo-release-regex}}
     username: {{repo-username}}
     password: {{repo-password}}
@@ -52,28 +62,32 @@ jobs:
   - get: source-code-resource
     trigger: true
   - get: pipeline-resource
+  - get: version-resource
+    params: { pre: rc }
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
     output_mapping: {build: built-artifact}
     params:
+      BRANCH: {{source-code-resource-branch}}
       M2_SETTINGS_REPO_ID: {{repo-id}}
       M2_SETTINGS_REPO_USERNAME: {{repo-username}}
       M2_SETTINGS_REPO_PASSWORD: {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI: {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
-  - put: artifact-resource
+  - put: build-artifact-resource
     params:
       file: {{artifact-to-publish}}
 
-- name: job-deploy-and-verify
+- name: job-deploy
   plan:
-  - get: artifact-resource
+  - get: build-artifact-resource
     trigger: true
+    passed: [job-build-and-verify]
   - get: pipeline-resource
   - task: generate-manifest
     file: pipeline-resource/tasks/generate-manifest.yml
-    input_mapping: {pipeline: pipeline-resource, artifact: artifact-resource}
+    input_mapping: {pipeline: pipeline-resource, artifact: build-artifact-resource}
     params:
       APP_NAME: {{cf-app-name}}
       APP_HOST: {{cf-app-host}}
@@ -81,6 +95,15 @@ jobs:
   - put: pcf-resource
     params:
       manifest: manifest/manifest.yml
+
+- name: job-acceptance-test
+  plan:
+  - get: build-artifact-resource
+    trigger: true
+    passed: [job-deploy]
+  - get: acceptance-test-resource
+    trigger: true
+  - get: pipeline-resource
   - task: run-acceptance-test
     file: pipeline-resource/tasks/maven-test.yml
     input_mapping: {acceptance-test: acceptance-test-resource, pipeline: pipeline-resource}
@@ -92,3 +115,5 @@ jobs:
       M2_SETTINGS_REPO_PASSWORD: {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI: {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI: {{repo-snapshot-uri}}
+  - put: version-resource
+    params: { pre: rc }
