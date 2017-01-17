@@ -2,9 +2,9 @@
 
 ## Purpose
 
-The goal of this step is to install our newly built application' jar to the corporate Maven repo. In the previous step (`03_release_versioned_artifact`) we produce uniquely versioned artifacts.
+The goal of this step is to install our newly built application' jar to the corporate Maven repo. In the previous step (`03_release_versioned_artifact`) we produced a uniquely versioned artifact.
 
-We are going to use the same Maven repository we used to look up all the dependencies.
+We are going to install our jars to the same Maven repository we resolve the dependencies.
 
 ## Set up
 We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
@@ -56,11 +56,11 @@ artifact-to-publish: ./built-artifact/maven-concourse-pipeline-app1-*.jar
 ```
 
 ### Reminder: Copy Maven's produced jar to an output folder
-In the previous step (`03_release_versioned_artifact`), the task `maven-build.yml` copies the built jar onto an output folder. If we don't copy the jar to an output folder, we lose it as soon as *Concourse* destroy the container where it ran the task.
+In the previous step (`03_release_versioned_artifact`), the task `maven-build.yml` copies the built jar onto an output folder. If we don't copy the jar to an output folder, we lose it as soon as *Concourse* destroys the container where it ran the task.
 
 ### Push produced jar to Maven local repo
 And the last change is to modify the job in the `pipeline.yml` so that we install the jar we just copied to the `build-artifact` folder.
-You maybe be wondering why do we need `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. When we create a task we declare what names are more meaningful. For instance, in `maven-build.sh` we used `source-code`, `version`, and `pipeline`. But at the pipeline level, the folder names receive the name of the resource from they come from, e.g. `source-code-resource`, or `pipeline-resource`.
+You may be wondering why we need the `input_mapping` and `output_mapping` attributes in the `task: build-and-verify`. It is a way to create aliases. When we create a task, we use meaningful names for the input and output folders. For instance, in `maven-build.sh` we used `source-code` for the source code we are building, `version` for the folder which contains the current version, and `pipeline` for the folder with all the tasks. But at the pipeline level, the folder names receive the name of the resource the belong to, e.g. `source-code-resource`, or `pipeline-resource`.
 
 There is a nasty bit on this pipeline which is how we tell the `artifactory-repository` resource which file to push to Maven repo. In *Concourse* we cannot concatenate multiple variables like this: `file: ./built-artifact/{{artifact-id}}-*`. If this expression would have been valid, it would have resolved to `file: ./built-artifact/maven-concourse-pipeline-app1-*` unfortunately *Concourse* produces `file: ./built-artifact/"maven-concourse-pipeline-app1"-*` (see the double quotes around our application?). For this reason, I have to declare the full path in the `credentials.yml` file which is very nasty because we have to reference the folder `built-artifact` which is defined in the pipeline. It is a very ugly solution.
 
