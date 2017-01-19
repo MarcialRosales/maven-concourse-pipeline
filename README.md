@@ -22,7 +22,7 @@ cf-space: mrosales
 
 ## Pipeline explained
 
-The pipeline will consists of 3 jobs. The one we have been using so far, `job-build-and-verify`, which builds and runs the unit tests and installs a build in Maven. And two new jobs which depends on the success of the first one. The second job takes the built artifact from Maven and deploys to *Cloud Foundry*. And the third job runs acceptance tests against the deployed artifact and installs a release candidate in Maven if all tests pass.
+The pipeline will consists of 3 jobs. The one we have been using so far, `job-build-and-verify`, which builds and runs the unit tests and installs the built artifact in Maven. And two new jobs which depends on the success of the first one. The second job takes the built artifact from Maven and deploys to *Cloud Foundry*. And the third job runs the acceptance tests against the deployed artifact and promotes the built artifact to a release candidate and installs it in Maven if all tests pass. Promoting means eliminating the build number from the built artifact so that we are only left with the release candidate part and to bump the release candidate version for subsequent builds.
 
 We are going to introduce a new *Concourse* resource called [cf-resource](https://github.com/concourse/cf-resource) to deploy our application's artifact (jar) to *Cloud Foundry*.
 
@@ -117,9 +117,9 @@ jobs:
 
 ```
 
-We have implemented a brand new task, defined in `maven-test.yml`, which simply does `mvn test`. Thats it, we run *Cucumber* thru Maven. Because we are invoking Maven, we need all the standard Maven Repo settings, in addition to 2 new parameters: `APP_DOMAIN` and `APP_HOST` which we use the build the base uri of the application running in *Cloud Foundry*. I am sure there are smarter ways of doing it but this is simply just to get going.
+We have implemented a brand new task, defined in `maven-test.yml`, which simply calls `mvn test` and it executes *Cucumber* fixtures thru Maven. Because we are invoking Maven, we need all the standard Maven Repo settings, in addition to 2 new parameters: `APP_DOMAIN` and `APP_HOST` which we use the build the base uri of the application running in *Cloud Foundry*. I am sure there are smarter ways of doing it but this is simply just to get going.
 
-If the `run-acceptance-test` task is successful that means that all tests passed and we can promote the built artifact to a release candidate. Remember that we deployed a built artifact. That is why we do
+If the `run-acceptance-test` task is successful that means that all tests passed and we can promote the built artifact to a release candidate. Remember that we had deployed a built artifact. That is why we do
 ```
    - put: version-resource
      params: { pre: rc }
@@ -127,12 +127,17 @@ If the `run-acceptance-test` task is successful that means that all tests passed
  which is saying, bump up the rc part of the version and commit it back to git.
 
  And finally, we need to install our release candidate to Maven.
- 
+
 
 ## Let's run the pipeline
 
 Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
+
+![pipeline](assets/pipeline.png)
+
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/20_push_to_pcf/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p push-to-pcf -c pipeline.yml -l credentials.yml
+maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/20_deploy_and_verify/pipeline.yml --output pipeline.yml
+maven-concourse-pipeline-app1$ fly -t plan1 sp -p 20_deploy_and_verify -c pipeline.yml -l credentials.yml
 ```
+
+![job-acceptance-test](assets/job-acceptance-test.png)
