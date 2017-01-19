@@ -15,4 +15,4 @@ APP_NAME="${BUILD%-*}"
 RELEASE_CANDIDATE=$APP_NAME-$RELEASE_CANDIDATE_VERSION.$APP_EXTENSION
 
 echo "Promoting ${BUILD} to ${RELEASE_CANDIDATE}"
-cp $BUILD ../release-candidate
+cp $BUILD ../release-candidate/$RELEASE_CANDIDATE
