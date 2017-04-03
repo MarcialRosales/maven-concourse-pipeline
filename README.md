@@ -26,7 +26,10 @@ So far we have talked how we will version our artifacts. Now we talk about where
 Version numbers will be stored in a versioned control file. It is better to explain it with our own example. We have our application https://github.com/MarcialRosales/maven-concourse-pipeline-app1. It has the `master` branch where we normally keep the latest and greatest version. We will create a branch which will contain a file whose content is the current version of our application.
 
 
-This is how it works: When we are about to build our application, we check out the `version` branch to know the version. And whenever we want to bump up the version number, we bump it up and commits it back. There is a *Concourse* resource called [sem-ver](https://github.com/concourse/semver-resource) which helps us with the task.
+This is how it works:
+- When we are about to build our application, we check out the `version` branch to know the version we are building.
+- Whenever we want to bump up the version number, say after we produce a release, we bump it up, commit it and push it so that it is available for the next builds.
+- There is a *Concourse* resource called [sem-ver](https://github.com/concourse/semver-resource) which helps us with the task.
 
 So, we know where versions are stored and how we are going to version each stage of our artifacts.
 
@@ -115,6 +118,5 @@ echo "Version to build: ${VERSION}"
 
 Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/03_release_versioned_artifact/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p 03_release_versioned_artifact -c pipeline.yml -l credentials.yml
+fly -t plan1 sp -p 03_release_versioned_artifact -c pipeline.yml -l credentials.yml
 ```
