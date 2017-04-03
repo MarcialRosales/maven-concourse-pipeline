@@ -5,10 +5,8 @@ This is going to be our first pipeline which will compile an application and run
 The pipeline project is a template or a generic pipeline that we want to use to build any java application. It is important
 that we distinguish between our application repository and the actual pipeline's repository. The pipeline repository, where
 we are right now, consists of a set of artifacts (`pipeline.yml`, task ymls and bash scripts) that together knows how to
-build java applications. The idea is that every java application does not need to build its own pipeline but instead leverage
-an existing one.
+build java applications. The idea is that every java application does not need to build its own pipeline but instead leverage an existing one.
 
-The application repository that we are going to build as means to demonstrate this pipeline is https://github.com/MarcialRosales/maven-concourse-pipeline-app1.
 
 ## Pipeline explained
 If we open the `pipeline.yml` we will see the following items:
@@ -52,8 +50,15 @@ You may be wondering why we need a pipeline repository. The pipeline repository 
 ## Run the pipeline!
 We are ready to launch our first pipeline in Concourse. If you have not logged in yet with *Concourse* thru *fly* it is time to do it. If you don't know how, check it out [here](https://github.com/MarcialRosales/maven-concourse-pipeline#00---set-up-concourse).
 
-1. `cd maven-concourse-pipeline`
-2. Prepare the credentials files that customizes the pipeline. If we want to build the sample application `maven-concourse-pipeline-app1`, the `credentials.yml` is already configured.
+**If you haven´t already created the concourse-tutorial folder check out README.md in the master branch**
+
+1. `cd concourse-tutorial/maven-concourse-pipeline-app1`
+2. Copy the `credentials-template.yml`
+  `cp ../maven-concourse-pipeline/credentials-template.yml template.yml`
+3. Customize it:
+  ```
+  source-code-resource-uri: <your_git_repo_url>
+  ```
 3. Set up the pipeline in Concourse:
   ```
   fly -t plan1 sp -p build-and-verify -c pipeline.yml -l credentials.yml
