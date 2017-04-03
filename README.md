@@ -56,10 +56,7 @@ We are ready to launch our first pipeline in Concourse. If you have not logged i
   ```
   curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/01_build_and_verify/pipeline.yml --output pipeline.yml
   ```
-2. Prepare the credentials files that customizes the pipeline. If we want to build the sample application `maven-concourse-pipeline-app1` proceed as follows:
-  ```
-  cd <location of maven-concourse-pipeline-app1>
-  ```
+2. Prepare the credentials files that customizes the pipeline. If we want to build the sample application `maven-concourse-pipeline-app1`, the `credentials.yml` is already configured.
 3. Set up the pipeline in Concourse:
   ```
   fly -t plan1 sp -p build-and-verify -c pipeline.yml -l credentials.yml
@@ -78,6 +75,7 @@ resources:
     name: source-code-resource
     type: git
     source:
+      branch: master
       uri: https://github.com/MarcialRosales/maven-concourse-pipeline-app1
 
   resource pipeline-resource has been added:
