@@ -24,6 +24,7 @@ resources:
   type: git
   source:
     uri: {{source-code-resource-uri}}
+    branch: {{source-code-resource-branch}}
 - name: pipeline-resource
   type: git
   source:
