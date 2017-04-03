@@ -4,7 +4,6 @@ resources:
   type: git
   source:
     uri: {{source-code-resource-uri}}
-    private_key: {{github-private-key}}
     branch: {{source-code-resource-branch}}
 
 - name: pipeline-resource
@@ -12,7 +11,6 @@ resources:
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
-    private_key: {{github-private-key}}
 
 jobs:
 - name: job-build-and-verify

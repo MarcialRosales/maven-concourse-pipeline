@@ -76,10 +76,11 @@ The script `tasks/generate-settings.sh` requires a set of variables to generate 
     M2_SETTINGS_REPO_SNAPSHOT_URI : {{m2-settings-repo-snapshot-uri}}
 ```
 
-This means that the application must declare those variables in the `credentials.yml` file which in case of the [app1](https://github.com/MarcialRosales/maven-concourse-pipeline-app1) it will look like this:
+This means that the application must declare those variables in the `credentials.yml` file:
 
 ```
 source-code-resource-uri: https://github.com/MarcialRosales/maven-concourse-pipeline-app1
+source-code-resource-branch: master
 pipeline-resource-uri: https://github.com/MarcialRosales/maven-concourse-pipeline
 pipeline-resource-branch: 02_use_corporate_maven_repo
 
@@ -90,12 +91,13 @@ m2-settings-repo-username: admin
 m2-settings-repo-password: password
 ```
 
+**Note about Credentials vs Secrets** : So far we have kept the credentials file in git. That was fine because we did not store any sensitive data such as passwords, private keys, etc. We are going to store the username and password of an artifactory server. Because this is a locally provisioned one, it is ok to store them in the `credentials.yml` file.
+
 ## Let's run the pipeline
 
-Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
+Once again, we are going to set the pipeline from our pipelines's folder.
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/02_use_corporate_maven_repo/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p use-corporate-maven-repo -c pipeline.yml -l credentials.yml
+maven-concourse-pipeline$ fly -t plan1 sp -p use-corporate-maven-repo -c pipeline.yml -l credentials.yml
 ```
 **Note: Pause or destroy previous pipelines** : *If you have been following this tutorial step by step, you probably have the previous pipeline `build and verify` active. You probably want to, at least, pause it by running this command*:
 `fly -t plan1 pause-pipeline -p build-and-verify`.
