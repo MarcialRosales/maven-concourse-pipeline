@@ -95,10 +95,19 @@ m2-settings-repo-password: password
 
 ## Let's run the pipeline
 
-Once again, we are going to set the pipeline from our pipelines's folder.
-```
-maven-concourse-pipeline$ fly -t plan1 sp -p use-corporate-maven-repo -c pipeline.yml -l credentials.yml
-```
+1. Update the `credentials.yml`. If you already have a `credentials.yml` from the previous chapter, you only need to add the following settings. Else `cp ../maven-concourse-pipeline/credentials-template.yml credentials.yml` and customize it.
+  ```
+  repo-id: artifactory
+  repo-release-uri: http://192.168.99.100:8081/artifactory/libs-release
+  repo-snapshot-uri: http://192.168.99.100:8081/artifactory/libs-snapshot
+  repo-username: admin
+  repo-password: password
+  ```
+2. Set pipeline:
+  ```
+  maven-concourse-pipeline-app1$ fly -t plan1 sp -p use-corporate-maven-repo -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml
+  ```
+
 **Note: Pause or destroy previous pipelines** : *If you have been following this tutorial step by step, you probably have the previous pipeline `build and verify` active. You probably want to, at least, pause it by running this command*:
 `fly -t plan1 pause-pipeline -p build-and-verify`.
 

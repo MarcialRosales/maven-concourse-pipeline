@@ -1,5 +1,6 @@
 .DS_Store
 secrets.yml
+credentials.yml
 target
 target/*
 nohup.out
