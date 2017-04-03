@@ -50,7 +50,7 @@ You may be wondering why we need a pipeline repository. The pipeline repository 
 ## Run the pipeline!
 We are ready to launch our first pipeline in Concourse. If you have not logged in yet with *Concourse* thru *fly* it is time to do it. If you don't know how, check it out [here](https://github.com/MarcialRosales/maven-concourse-pipeline#00---set-up-concourse).
 
-**If you haven´t already created the concourse-tutorial folder check out README.md in the master branch**
+**If you haven´t already created the concourse-tutorial folder check out [README.md](https://github.com/MarcialRosales/maven-concourse-pipeline/) in the master branch**
 
 1. `cd concourse-tutorial/maven-concourse-pipeline-app1`
 2. Copy the `credentials-template.yml`
