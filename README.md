@@ -55,13 +55,13 @@ We are ready to launch our first pipeline in Concourse. If you have not logged i
 1. `cd concourse-tutorial/maven-concourse-pipeline-app1`
 2. Copy the `credentials-template.yml`
   `cp ../maven-concourse-pipeline/credentials-template.yml template.yml`
-3. Customize it:
+3. Customize it by adjusting this attribute:
   ```
   source-code-resource-uri: <your_git_repo_url>
   ```
 3. Set up the pipeline in Concourse:
   ```
-  fly -t plan1 sp -p build-and-verify -c pipeline.yml -l credentials.yml
+  fly -t plan1 sp -p build-and-verify -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml
   ```
   - `fly -t plan1` is saying we want to target the *Concourse* instance we logged in earlier
   - `sp` means `set-pipeline`, it is the actual command
