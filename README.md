@@ -1,5 +1,14 @@
 # Release Versioned Artifacts
 
+## Setup
+
+1. Check out this branch
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/03_release_versioned_artifact`
+2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
+  ```
+  pipeline-resource-branch: 03_release_versioned_artifact
+  ```
+
 ## Purpose
 
 Up until now we have built our application without bothering with version numbers. We are always building the same hard-coded version defined in the `pom.xml`.
@@ -112,6 +121,27 @@ source ./pipeline/tasks/common.sh
 VERSION=$(build_version "./version" "number" "./source-code" $BRANCH)
 echo "Version to build: ${VERSION}"
 ```
+
+### Version management jobs
+
+Concourse allows us to organize the jobs in tabs. We have created a tab called "versioning" where we have placed 2 jobs that allows us to bump up the minor and/or major version of the application. To do we only have to trigger the corresponding job.
+
+These are the 2 jobs:
+```
+- name: increase-major
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: major }
+
+- name: increase-minor
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: minor }
+```
+
+![Pipeline](assets/pipeline2.png)
 
 ### Use ssh instead of https to access git repositories
 
