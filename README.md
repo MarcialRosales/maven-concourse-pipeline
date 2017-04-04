@@ -1,5 +1,15 @@
 # Deploy, Verify and Promote Release candidate
 
+## Setup
+
+1. Check out this branch
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/20_deploy_and_verify`
+2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
+  ```
+  pipeline-resource-branch: 20_deploy_and_verify
+  ```
+
+
 ## Purpose
 
 The purpose of this step is to take the latest *built artifact* from a Maven repository *JFrog* and deploy it to *Cloud Foundry*, verify that it passes a set of acceptance tests and promote it as a release candidate to Maven.
@@ -136,8 +146,7 @@ Once again, we are going to set the pipeline from our application's folder (i.e.
 ![pipeline](assets/pipeline.png)
 
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/20_deploy_and_verify/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p 20_deploy_and_verify -c pipeline.yml -l credentials.yml
+concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 20_deploy_and_verify -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 ```
 
 ![job-acceptance-test](assets/job-acceptance-test.png)
