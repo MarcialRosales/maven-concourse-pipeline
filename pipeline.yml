@@ -22,7 +22,6 @@ resources:
   type: git
   source:
     uri: {{pipeline-resource-uri}}
-    private_key: {{github-private-key}}
     branch: {{pipeline-resource-branch}}
 
 

@@ -113,10 +113,16 @@ VERSION=$(build_version "./version" "number" "./source-code" $BRANCH)
 echo "Version to build: ${VERSION}"
 ```
 
+### Use ssh instead of https to access git repositories
+
+From now on, we will use ssh to access git repositories, at least to access the `source-code` repo. This means that we need to create an [SSH key-pair](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and add place the private key in a `secrets.yml` file. This file has to be generated, never persisted in a git repository. You can start by taking a copy of this file from `concourse-tutorial/maven-concourse-pipeline/secrets-template.yml`.
+
+
 
 ## Let's run the pipeline
 
-Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
+Once again, we are going to set the pipeline from our application's folder (i.e. `concourse-tutorial/maven-concourse-pipeline-app1`). If you are joining this tutorial for the first time, check out the master branch.
+
 ```
-fly -t plan1 sp -p 03_release_versioned_artifact -c pipeline.yml -l credentials.yml
+fly -t plan1 sp -p 03_release_versioned_artifact -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 ```
