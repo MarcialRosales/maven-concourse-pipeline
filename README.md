@@ -1,5 +1,14 @@
 # Use Corporate Maven Repository
 
+## Setup
+
+1. Check out this branch
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/02_use_corporate_maven_repo`
+2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
+  ```
+  pipeline-resource-branch: 02_use_corporate_maven_repo
+  ```
+
 ## Purpose
 
 In the previous step (`build and verify`) we managed to build our Java application
