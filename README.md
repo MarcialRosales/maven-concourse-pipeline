@@ -1,5 +1,14 @@
 # Install Built Artifact to Maven Repo
 
+## Setup
+
+1. Check out this branch
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/04_install_built_artifact`
+2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
+  ```
+  pipeline-resource-branch: 04_install_built_artifact
+  ```
+
 ## Purpose
 
 The goal of this step is to install our newly built application' jar to the corporate Maven repo. In the previous step (`03_release_versioned_artifact`) we produced a uniquely versioned artifact.
@@ -7,7 +16,7 @@ The goal of this step is to install our newly built application' jar to the corp
 We are going to install our jars to the same Maven repository we resolve the dependencies.
 
 ## Set up
-We inherit the set up from the step `02_use_corporate_maven_repo` which gives us *Concourse* and *JFrog*.
+We inherit the set up from the step `03_release_versioned_artifact` which gives us *Concourse* and *JFrog*.
 
 If we haven't launch our infrastucture yet, we can do it now:
 `nohup docker-compose up & `
@@ -91,9 +100,9 @@ jobs:
 
 Once again, we are going to set the pipeline from our application's folder (i.e. `maven-concourse-pipeline-app1`).
 ```
-maven-concourse-pipeline-app1$ curl https://raw.githubusercontent.com/MarcialRosales/maven-concourse-pipeline/03_deploy_artifact/pipeline.yml --output pipeline.yml
-maven-concourse-pipeline-app1$ fly -t plan1 sp -p deploy-artifact -c pipeline.yml -l credentials.yml
+concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 04_install_built_artifact -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 ```
+
 This is our pipeline:
 ![Pipeline that builds and deploys to Artifactory](assets/pipeline3.png)
 
