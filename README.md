@@ -138,6 +138,14 @@ If the `run-acceptance-test` task is successful that means that all tests passed
 
  And finally, we need to install our release candidate to Maven.
 
+### Chaining jobs in Concourse
+
+How do I tell Concourse to run the *job-acceptance-test* only when a previous job, *job-deploy*, was successful?
+
+There are 2 approaches:
+- our job depends on a resource the previous job produced. This is the case of *job-deploy* which depends on a new resource (*build-artifact-resource*) produced by *job-build-and-verify*.
+- our job should trigger when the previous job is successful. This is the case of *job-acceptance-test* which should run when *job-deploy* is successful. However, *job-acceptance-test* does not really depend on any resource produced by *job-deploy*. In theory, it could depend on the *pcf-resource* given that is the outcome from *job-deploy* however this resource will not trigger when we push new versions of our application. Therefore, we have to use the same resource that triggered the previous job, *job-deploy*.
+
 
 ## Let's run the pipeline
 
