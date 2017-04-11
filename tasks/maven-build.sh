@@ -9,10 +9,13 @@ cd source-code || echo "missing input resource: source-code"
 echo "Using MAVEN_OPTS: ${MAVEN_OPTS}"
 
 set +e
-mvn test 
 
-if [[ ! -f target/site/*.zip ]]; then
+mvn install
+
+if [[ ! -f target/surefire-reports ]]; then
   exit 1
 fi
+
+mvn assembly:single
 
 cp target/* ../target
