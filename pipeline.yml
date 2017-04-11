@@ -1,55 +1,88 @@
 ---
-resource_types:
-- name: artifactory
-  type: docker-image
-  source:
-    repository: pivotalservices/artifactory-resource
 
 resources:
 - name: source-code-resource
   type: git
   source:
     uri: {{source-code-resource-uri}}
+    private_key: {{github-private-key}}
+    branch: {{source-code-resource-branch}}
+
+- name: version-resource
+  type: semver
+  source:
+    driver: git
+    initial_version: 0.0.1
+    uri: {{source-code-resource-uri}} # convention over configuration = version file is on the version branch of the application's repo
+    private_key: {{github-private-key}}
+    branch: version
+    file: version
+
 - name: pipeline-resource
   type: git
   source:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
-- name: reports-repository
-  type: artifactory
-  source:
-    endpoint: {{m2-settings-repo-base-uri}}
-    repository: "/ext-release-local/pivotal/io/microservices"
-    regex: "site-(?<version>.*).zip"
-    username: {{m2-settings-repo-username}}
-    password: {{m2-settings-repo-password}}
-    skip_ssl_verification: true
-- name: artifact-repository
-  type: artifactory
-  source:
-    endpoint: {{m2-settings-repo-base-uri}}
-    repository: "/ext-release-local/pivotal/io/microservices"
-    regex: "trading-service-(?<version>.*).jar"
-    username: {{m2-settings-repo-username}}
-    password: {{m2-settings-repo-password}}
-    skip_ssl_verification: true
+
+#- name: site-artifact-resource
+#  type: artifactory
+#  source:
+#    endpoint: {{repo-uri}}
+#    repository: {{repo-site-folder}}
+#    regex: {{repo-site-regex}}
+#    username: {{repo-username}}
+#    password: {{repo-password}}
+#    skip_ssl_verification: true
 
 jobs:
 - name: job-build-and-verify
+  serial: true
   plan:
   - get: source-code-resource
     trigger: true
   - get: pipeline-resource
+  - get: version-resource
+    params: { pre: rc }
   - task: build-and-verify
     file: pipeline-resource/tasks/maven-build.yml
-    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource}
+    input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
+    output_mapping: {build: built-artifact}
     params:
-      M2_SETTINGS_REPO_ID : {{m2-settings-repo-id}}
-      M2_SETTINGS_REPO_USERNAME : {{m2-settings-repo-username}}
-      M2_SETTINGS_REPO_PASSWORD : {{m2-settings-repo-password}}
-      M2_SETTINGS_REPO_RELEASE_URI : {{m2-settings-repo-release-uri}}
-      M2_SETTINGS_REPO_SNAPSHOT_URI : {{m2-settings-repo-snapshot-uri}}
-  - put: reports-repository
-    params: { file: ./target/*.zip }
-  - put: artifact-repository
-    params: { file: ./target/*.jar }
+      BRANCH: {{source-code-resource-branch}}
+      M2_SETTINGS_REPO_ID : {{repo-id}}
+      M2_SETTINGS_REPO_USERNAME : {{repo-username}}
+      M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
+      M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
+      M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
+#  ensure:
+#      aggregate:
+#      - task: build-project-site
+#        file: pipeline-resource/tasks/maven-site.yml
+#        input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
+#        output_mapping: { site: site }
+#      - put: site-artifact-resource
+#        params:
+#        file: site/*
+
+
+- name: increase-major
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: major }
+
+- name: increase-minor
+  serial: true
+  plan:
+  - put: version-resource
+    params: { bump: minor }
+
+
+groups:
+- name: build
+  jobs:
+  - job-build-and-verify
+- name: versioning
+  jobs:
+  - increase-major
+  - increase-minor

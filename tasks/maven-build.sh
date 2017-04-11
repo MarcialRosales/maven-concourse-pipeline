@@ -9,7 +9,7 @@ cd source-code || echo "missing input resource: source-code"
 echo "Using MAVEN_OPTS: ${MAVEN_OPTS}"
 
 set +e
-mvn verify site assembly:single
+mvn test 
 
 if [[ ! -f target/site/*.zip ]]; then
   exit 1
