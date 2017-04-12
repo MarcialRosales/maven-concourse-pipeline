@@ -88,3 +88,11 @@ From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-con
 `
 
 ![pipeline](assets/pipeline.png)
+
+## how do we check the tests cases that failed?
+
+We can either look at them thru the concourse logs.
+![pipeline](assets/surefire.png)
+
+Or we can download the reports from artifactory:
+http://192.168.99.100:8081/artifactory/simple/libs-release-local/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT-surefire.tgz
