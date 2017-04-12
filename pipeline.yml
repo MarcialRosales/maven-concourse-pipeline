@@ -29,7 +29,17 @@ resources:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
 
-- name: site-artifact-resource
+- name: built-artifact-repository
+  type: artifactory
+  source:
+    endpoint: {{repo-uri}}
+    repository: {{repo-release-folder}}
+    regex: {{repo-release-regex}}
+    username: {{repo-username}}
+    password: {{repo-password}}
+    skip_ssl_verification: true
+
+- name: surefire-report-resource
   type: artifactory
   source:
     endpoint: {{repo-uri}}
@@ -60,10 +70,12 @@ jobs:
       M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
     ensure:
-      put: site-artifact-resource
+      put: surefire-report-resource
       params:
-        file: {{site-to-publish}}
-
+        file: {{surefire-to-publish}}
+  - put: built-artifact-repository
+    params:
+      file: {{artifact-to-publish}}
 
 - name: increase-major
   serial: true
