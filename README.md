@@ -1,100 +1,27 @@
-# Deploy Surefire Reports
+# Store secrets in Vault
 =======
 
 ## Purpose
-What about if we want to look at the surefire reports? Although we can look at what junit test cases failed via the logs produced by the *build-and-test* job, it would be great if we could look at them via the browser.
+You have probably noticed how painful to have to 2 files to configure the pipeline: `credentials.yml` that we have along with our project in Git and `secrets.yml` which we need to create it when we need it or store it somewhere secure.
 
-We are going to use *Maven Assembly plugin* to produce a `tgz` with all the surefire reports and publish it in *Artifactory*.
+We are going to store the secrets in *Vault* and we are going to use *Spruce* to produce a `pipeline.yml` with all our secrets injected into the pipeline.
 
 ## Set up
 
 1. Check out this branch
-  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/06_deploy_surefire_reports`
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/07_store_secrets_in_vault`
 2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
   ```
-  pipeline-resource-branch: 06_deploy_surefire_reports
+  pipeline-resource-branch: 07_store_secrets_in_vault
   ```
+3. Bring down docker-compose : `docker-compose stop`
+4. Bring up the new docker-compose which comes with Vault : `docker-compose up`
 
-## Configure Assembly plugin
-
-We are going to modify the `pom.xml` to include the assembly plugin and add the `src/assembly/surefire.xml` file.
-
-*pom.xml*
-```
-<build>
-  <plugins>
-     ...
-     <plugin>
-       <artifactId>maven-assembly-plugin</artifactId>
-       <configuration>
-       <descriptors>
-           <descriptor>src/assembly/surefire.xml</descriptor>
-       </descriptors>
-       </configuration>
-     </plugin>
-  </plugins>
-</reporting>
-```
-
-*surefire.xml*
-```
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>surefire</id>
-  <formats>
-    <format>tgz</format>
-  </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
-  <fileSets>
-    <fileSet>
-      <directory>target/surefire-reports</directory>
-    </fileSet>
-  </fileSets>
-
-</assembly>
-```
 
 ## Pipeline explained
 
-The pipeline demonstrates how we can run unit tests and publish a tarball with the outcome of the tests cases to *Artifactory* regardless of the outcome. If there are test cases failures, the job **job-build-and-verify** will fail but we are still publishing the surefire reports but not the actual jar.
-
-```
-- task: build-and-verify
-  file: pipeline-resource/tasks/maven-build.yml
-  input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
-  output_mapping: {build: built-artifact}
-  params:
-    BRANCH: {{source-code-resource-branch}}
-    M2_SETTINGS_REPO_ID : {{repo-id}}
-    M2_SETTINGS_REPO_USERNAME : {{repo-username}}
-    M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
-    M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
-    M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
-  ensure:
-    put: surefire-report-resource
-    params:
-      file: {{surefire-to-publish}}
-- put: built-artifact-repository
-  params:
-    file: {{artifact-to-publish}}
-```
-
-`put: built-artifact-repository` is invoked provided the previous task `build-and-verify` is successful. If there are tests failures, `build-and-verify` is not successful. However, `ensure: put: surefire-report-resource` will be invoked regardless of the outcome of `build-and-verify`.
-
 # Let's run the pipeline
 
-From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 06_deploy_surefire_reports -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
-`
+From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-concourse-pipeline-app1$  `
 
 ![pipeline](assets/pipeline.png)
-
-## how do we check the tests cases that failed?
-
-We can either look at them thru the concourse logs.
-![pipeline](assets/surefire.png)
-
-Or we can download the reports from artifactory: http://192.168.99.100:8081/artifactory/simple/libs-release-local/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT-surefire.tgz
-
-The actual version of the surefire artifact can be found in the job itself. See that the `build-artifact-resource` which publishes the `jar` has no version because the actual job failed. But `surefire-report-resource` has a version though.
-![pipeline](assets/surefire-version.png)
