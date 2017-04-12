@@ -18,6 +18,6 @@ fi
 
 mvn assembly:single
 
-cp target/* ../target
+cp target/* ../build
 
-ls -l ../target
+ls -l ../build
