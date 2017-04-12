@@ -2,3 +2,5 @@
 credentials.yml
 target
 webdav
+target/*
+nohup.out

@@ -1,10 +1,19 @@
 # Deploy Surefire Reports
+=======
 
-## Getting started
-
+## Purpose
 What about if we want to look at the surefire reports? Although we can look at what junit test cases failed via the logs produced by the *build-and-test* job, it would be great if we could look at them via the browser.
 
 We are going to use *Maven Assembly plugin* to produce a `tgz` with all the surefire reports and publish it in *Artifactory*.
+
+## Set up
+
+1. Check out this branch
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/30_deploy_poject_reports`
+2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
+  ```
+  pipeline-resource-branch: 30_deploy_poject_reports
+  ```
 
 ## Configure Assembly plugin
 
@@ -77,3 +86,5 @@ The pipeline demonstrates how we can run unit tests and publish a tarball with t
 
 From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 30_deploy_poject_reports -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 `
+
+![pipeline](assets/pipeline.png)

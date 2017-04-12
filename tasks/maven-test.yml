@@ -5,10 +5,8 @@ image_resource:
   source: {repository: maven, tag: 3.3.9-jdk-8}
 
 inputs:
-  - name: source-code
+  - name: acceptance-test
   - name: pipeline
-outputs:
-  - name: build
 
 run:
-  path: pipeline/tasks/maven-build.sh
+  path: pipeline/tasks/maven-test.sh
