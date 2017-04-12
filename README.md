@@ -94,5 +94,7 @@ From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-con
 We can either look at them thru the concourse logs.
 ![pipeline](assets/surefire.png)
 
-Or we can download the reports from artifactory:
-http://192.168.99.100:8081/artifactory/simple/libs-release-local/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT-surefire.tgz
+Or we can download the reports from artifactory: http://192.168.99.100:8081/artifactory/simple/libs-release-local/maven-concourse-pipeline-app1-0.0.1-SNAPSHOT-surefire.tgz
+
+The actual version of the surefire artifact can be found in the job itself. See that the `build-artifact-resource` which publishes the `jar` has no version because the actual job failed. But `surefire-report-resource` has a version though.
+![pipeline](assets/surefire-version.png)
