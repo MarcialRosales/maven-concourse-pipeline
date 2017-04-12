@@ -9,10 +9,10 @@ We are going to use *Maven Assembly plugin* to produce a `tgz` with all the sure
 ## Set up
 
 1. Check out this branch
-  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/30_deploy_poject_reports`
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/06_deploy_surefire_reports`
 2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
   ```
-  pipeline-resource-branch: 30_deploy_poject_reports
+  pipeline-resource-branch: 06_deploy_surefire_reports
   ```
 
 ## Configure Assembly plugin
@@ -84,7 +84,7 @@ The pipeline demonstrates how we can run unit tests and publish a tarball with t
 
 # Let's run the pipeline
 
-From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 30_deploy_poject_reports -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
+From `maven-concourse-pipeline-app1` folder we run `concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 06_deploy_surefire_reports -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 `
 
 ![pipeline](assets/pipeline.png)
