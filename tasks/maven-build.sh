@@ -12,7 +12,7 @@ set +e
 
 mvn install
 
-if [[ ! -f target/surefire-reports ]]; then
+if [[ ! -d target/surefire-reports ]]; then
   exit 1
 fi
 
