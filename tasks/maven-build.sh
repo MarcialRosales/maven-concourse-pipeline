@@ -19,3 +19,5 @@ fi
 mvn assembly:single
 
 cp target/* ../target
+
+ls -l ../target
