@@ -3,10 +3,10 @@
 ## Setup
 
 1. Check out this branch
-  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/20_deploy_and_verify`
+  `concourse-tutorial/maven-concourse-pipeline$ git checkout origin/05_deploy_and_verify`
 2. Update `concourse-tutorial/maven-concourse-pipeline-app1/credentials.yml` :
   ```
-  pipeline-resource-branch: 20_deploy_and_verify
+  pipeline-resource-branch: 05_deploy_and_verify
   ```
 
 
@@ -154,7 +154,7 @@ Once again, we are going to set the pipeline from our application's folder (i.e.
 ![pipeline](assets/pipeline.png)
 
 ```
-concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 20_deploy_and_verify -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
+concourse-tutorial/maven-concourse-pipeline-app1$ fly -t plan1 sp -p 05_deploy_and_verify -c ../maven-concourse-pipeline/pipeline.yml -l credentials.yml -l secrets.yml
 ```
 
 ![job-acceptance-test](assets/job-acceptance-test.png)
