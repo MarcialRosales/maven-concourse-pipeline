@@ -8,6 +8,6 @@ inputs:
   - name: source-code
   - name: pipeline
 outputs:
-  - name: target
+  - name: build
 run:
   path: pipeline/tasks/maven-build.sh
