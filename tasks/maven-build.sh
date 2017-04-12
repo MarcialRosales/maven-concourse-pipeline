@@ -12,8 +12,10 @@ set +e
 
 mvn install
 
+status=$?
+
 if [[ ! -d target/surefire-reports ]]; then
-  exit 1
+  exit $status
 fi
 
 mvn assembly:single
@@ -21,3 +23,5 @@ mvn assembly:single
 cp target/* ../build
 
 ls -l ../build
+
+exit $status

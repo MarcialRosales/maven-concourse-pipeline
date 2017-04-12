@@ -1,4 +1,9 @@
 ---
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
 
 resources:
 - name: source-code-resource
@@ -24,15 +29,15 @@ resources:
     uri: {{pipeline-resource-uri}}
     branch: {{pipeline-resource-branch}}
 
-#- name: site-artifact-resource
-#  type: artifactory
-#  source:
-#    endpoint: {{repo-uri}}
-#    repository: {{repo-site-folder}}
-#    regex: {{repo-site-regex}}
-#    username: {{repo-username}}
-#    password: {{repo-password}}
-#    skip_ssl_verification: true
+- name: site-artifact-resource
+  type: artifactory
+  source:
+    endpoint: {{repo-uri}}
+    repository: {{repo-site-folder}}
+    regex: {{repo-site-regex}}
+    username: {{repo-username}}
+    password: {{repo-password}}
+    skip_ssl_verification: true
 
 jobs:
 - name: job-build-and-verify
@@ -54,15 +59,10 @@ jobs:
       M2_SETTINGS_REPO_PASSWORD : {{repo-password}}
       M2_SETTINGS_REPO_RELEASE_URI : {{repo-release-uri}}
       M2_SETTINGS_REPO_SNAPSHOT_URI : {{repo-snapshot-uri}}
-#  ensure:
-#      aggregate:
-#      - task: build-project-site
-#        file: pipeline-resource/tasks/maven-site.yml
-#        input_mapping: {source-code: source-code-resource, pipeline: pipeline-resource, version: version-resource}
-#        output_mapping: { site: site }
-#      - put: site-artifact-resource
-#        params:
-#        file: site/*
+    ensure:
+      put: site-artifact-resource
+      params:
+        file: {{site-to-publish}}
 
 
 - name: increase-major
