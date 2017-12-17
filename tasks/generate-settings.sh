@@ -15,7 +15,7 @@ cat > ${HOME}/.m2/settings.xml <<EOF
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                           https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
+<!--
       <mirrors>
           <mirror>
             <id>${M2_SETTINGS_REPO_ID}</id>
@@ -24,6 +24,7 @@ cat > ${HOME}/.m2/settings.xml <<EOF
             <name>Artifactory</name>
           </mirror>
       </mirrors>
+      -->
        <servers>
          <server>
            <id>${M2_SETTINGS_REPO_ID}</id>
